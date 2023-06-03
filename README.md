@@ -1,4 +1,4 @@
-# Title：MarsGT:Multi-omics data analysis for rare population inference using single-cell graph transformer
+<h1 align="center">MarsGT: Multi-omics data analysis for rare population inference using single-cell graph transformer</h1>
 
 ## Description
 
