@@ -38,7 +38,7 @@
 ```bash
 pip install -r requirements.txt
 ```
-* use pip to install MarsGT:
+* Use pip to install MarsGT:
 ```bash
 pip install MarsGT
 ```
