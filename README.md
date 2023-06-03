@@ -9,7 +9,7 @@ DeepMARS, for rare cell identification from matched scRNA-seq (snRNA-seq) and sc
 
 ### System Requirements
 
-* Python 3.8.0 or higher
+* Python Version ≥ 3.8.0
 
 ### Dependencies, MarsGT has the following dependencies:
 * anndata==0.8.0
