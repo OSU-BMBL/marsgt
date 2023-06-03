@@ -5,9 +5,16 @@ DeepMARS, for rare cell identification from matched scRNA-seq (snRNA-seq) and sc
   <img src="./images/MarsGT%20Flowchart%201.jpg" alt="MarsGT Flowchart" width="900">
 </p>
 
-## 安装
+## Installation
 
-use pip to install MarsGT:
+### System Requirements
 
+* Python 3.8.0 or higher
+
+### Installation Steps
+* Install the required dependencies using pip:
+```bash
+pip install -r requirements.txt
+* use pip to install MarsGT:
 ```bash
 pip install MarsGT
