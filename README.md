@@ -15,6 +15,8 @@ DeepMARS, for rare cell identification from matched scRNA-seq (snRNA-seq) and sc
 * Install the required dependencies using pip:
 ```bash
 pip install -r requirements.txt
+```
 * use pip to install MarsGT:
 ```bash
 pip install MarsGT
+```
