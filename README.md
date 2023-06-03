@@ -1,6 +1,6 @@
 # Title：MarsGT:Multi-omics data analysis for rare population inference using single-cell graph transformer
 
-&nbsp;&nbsp;DeepMARS, for rare cell identification from matched scRNA-seq (snRNA-seq) and scATAC-seq (snATAC-seq),includes genes, enhancers, and cells in a heterogeneous graph to simultaneously identify major cell clusters and rare cell clusters based on eRegulon.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeepMARS, for rare cell identification from matched scRNA-seq (snRNA-seq) and scATAC-seq (snATAC-seq),includes genes, enhancers, and cells in a heterogeneous graph to simultaneously identify major cell clusters and rare cell clusters based on eRegulon.
 <p align="center">
   <img src="./images/MarsGT%20Flowchart%201.jpg" alt="MarsGT Flowchart" width="900">
 </p>
@@ -40,4 +40,4 @@ pip install MarsGT
 ```
 ## GPU Acceleration
 
-&nbsp;&nbsp;If you are interested in accelerating your software's runtime using a GPU, I kindly recommend visiting the official PyTorch website at [https://pytorch.org/get-started/previous-versions/](https://pytorch.org/get-started/previous-versions/). There, you will have the opportunity to select and download the CUDA-enabled version of PyTorch that best matches your system configuration.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If you are interested in accelerating your software's runtime using a GPU, I kindly recommend visiting the official PyTorch website at [https://pytorch.org/get-started/previous-versions/](https://pytorch.org/get-started/previous-versions/). There, you will have the opportunity to select and download the CUDA-enabled version of PyTorch that best matches your system configuration.
