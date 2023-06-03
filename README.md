@@ -10,6 +10,8 @@
 ### System Requirements
 
 * Python Version ≥ 3.8.0
+* Hardware Architecture: x86_64
+* Operating System: GNU/Linux
 
 ### Dependencies, MarsGT has the following dependencies:
 * anndata==0.8.0
