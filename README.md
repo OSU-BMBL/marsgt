@@ -44,7 +44,7 @@ pip install MarsGT==0.1.6
 ```
 ## GPU Acceleration
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If you are interested in accelerating your software's runtime using a GPU, I kindly recommend visiting the official PyTorch website at [https://pytorch.org/]. There, you will have the opportunity to select and download the CUDA-enabled version of PyTorch that best matches your system configuration.For example:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If you are interested in accelerating your software's runtime using a GPU, I kindly recommend visiting the official PyTorch website at [https://pytorch.org/]. There, you will have the opportunity to select and download the CUDA-enabled version of PyTorch that best matches your system configuration. For example:
 ### For linux system:
     pip install https://data.pyg.org/whl/torch-1.12.0%2Bcu102/torch_scatter-2.1.0%2Bpt112cu102-cp38-cp38-linux_x86_64.whl
     pip install https://data.pyg.org/whl/torch-1.12.0%2Bcu102/torch_sparse-0.6.16%2Bpt112cu102-cp38-cp38-linux_x86_64.whl
