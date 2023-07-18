@@ -38,7 +38,7 @@
 ```bash
 pip install -r requirements.txt
 ```
-* Use pip to install MarsGT:
+* You can directly install MarsGT using the pip command:
 ```bash
 pip install MarsGT==0.1.6
 ```
