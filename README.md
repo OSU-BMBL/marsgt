@@ -55,3 +55,11 @@ pip install MarsGT==0.1.6
     pip install https://data.pyg.org/whl/torch-1.12.0%2Bcu116/torch_sparse-0.6.15%2Bpt112cu116-cp38-cp38-win_amd64.whl
     pip install https://data.pyg.org/whl/torch-1.12.0%2Bcu116/torch_cluster-1.6.0%2Bpt112cu116-cp38-cp38-win_amd64.whl
 
+## Data Download
+### You can choose to download them directly from your browser by visiting the following URL: 
+    https://zenodo.org/record/8160180
+### You also can download them from cmd command：
+    curl -o /path/to/save/location/B_lymphoma.zip https://zenodo.org/api/files/cf6453c0-0853-4633-a9d3-e571fb8ba47e/B_lymphoma.zip
+    curl -o /path/to/save/location/Mouse_retina.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Mouse_retina.zip
+    curl -o /path/to/save/location/Tutorial_example.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Tutorial_example.zip
+
