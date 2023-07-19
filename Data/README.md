@@ -9,10 +9,8 @@
     curl -o /path/to/save/location/Mouse_retina.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Mouse_retina.zip
     curl -o /path/to/save/location/Tutorial_example.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Tutorial_example.zip
 ## Data Structure
+
 ### **B_lymphoma_Dataset.zip**
-
-<sub>
-
 - B_lymphoma_B.h5ad (66.4 MB)
 - B_lymphoma_all.h5ad (182.6 MB)
 - B_socre_df.csv (60.4 MB)
@@ -22,13 +20,8 @@
 - Gene_names.tsv (129.9 kB)
 - Peak_Cell.mtx (859.7 MB)
 - Peak_names.tsv (2.6 MB)
-
-</sub>
-
+- 
 ### **Mouse_retina_Dataset.zip**
-
-<sub>
-
 - Cell_names.tsv (178.3 kB)
 - Cell_type.tsv (37.4 kB)
 - Gene_Cell.mtx (41.7 MB)
@@ -40,12 +33,7 @@
 - Peak_names.tsv (1.4 MB)
 - Total_socre_df.csv (46.6 MB)
 
-</sub>
-
 ### **Tutorial_example.zip**
-
-<sub>
-
 - ATAC.npz (2.6 MB)
 - Gene_Peak_.npz (1.0 MB)
 - RNA.npz (966.6 kB)
@@ -53,5 +41,3 @@
 - gene_name.npy (662.0 kB)
 - label500.npy (1.3 kB)
 - peak_name.npy (7.6 MB)
-
-</sub>
