@@ -43,7 +43,7 @@ pip install -r requirements.txt
 pip install --upgrade MarsGT
 ```
 
-### Then, you can choose to use either the CPU or GPU version of PyTorch as per your preference
+* Then, you can choose to use either the CPU or GPU version of PyTorch as per your preference
 #### CPU Version
 ##### For linux system(torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
     pip install https://download.pytorch.org/whl/cpu/torch-1.12.0%2Bcpu-cp38-cp38-linux_x86_64.whl
