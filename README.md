@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ```
 * You can directly install MarsGT using the pip command:
 ```bash
-pip install MarsGT==0.1.6
+pip install --upgrade MarsGT
 ```
 ## GPU Acceleration
 
