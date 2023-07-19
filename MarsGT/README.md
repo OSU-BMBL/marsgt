@@ -2,7 +2,7 @@
 
 ## Introduction
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Welcome to the MarsGT project. This repository contains all the source code for the MarsGT project, a sophisticated and groundbreaking initiative aimed at rare cell identification from matched scRNA-seq (snRNA-seq) and scATAC-seq (snATAC-seq), includes genes, enhancers, and cells in a heterogeneous graph to simultaneously identify major cell clusters and rare cell clusters based on eRegulon.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Welcome to the MarsGT project. This repository contains all the source code for the MarsGT project, which is a sophisticated and groundbreaking initiative aimed at rare cell identification from matched scRNA-seq (snRNA-seq) and scATAC-seq (snATAC-seq), includes genes, enhancers, and cells in a heterogeneous graph to simultaneously identify major cell clusters and rare cell clusters based on eRegulon.
 
 ## Source Code
 
