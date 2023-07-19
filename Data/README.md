@@ -1,9 +1,10 @@
-To download the example data and the data mentioned in the article, you can use the following commands:
-
-curl -o /path/to/save/location/B_lymphoma.zip https://zenodo.org/api/files/cf6453c0-0853-4633-a9d3-e571fb8ba47e/B_lymphoma.zip
-
-curl -o /path/to/save/location/Mouse_retina.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Mouse_retina.zip
-
-curl -o /path/to/save/location/Tutorial_example.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Tutorial_example.zip
-
-In the above commands, replace /path/to/save/location/ with the desired path where you want to save the files.
+## Data Download
+### You can choose to download them directly from your browser by visiting the following URL: 
+- [B_lymphoma Dataset (.zip) (288.0 MB)](https://zenodo.org/record/8160180/files/B_lymphoma.zip?download=1)
+- [Mouse_retina Dataset (.zip) (123.7 MB)](https://zenodo.org/record/8160180/files/Mouse_retina.zip?download=1)
+- [Tutorial_example (.zip) (5.3 MB)](https://zenodo.org/record/8160180/files/Tutorial_example.zip?download=1)
+  
+### You also can download them from cmd command：
+    curl -o /path/to/save/location/B_lymphoma.zip https://zenodo.org/api/files/cf6453c0-0853-4633-a9d3-e571fb8ba47e/B_lymphoma.zip
+    curl -o /path/to/save/location/Mouse_retina.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Mouse_retina.zip
+    curl -o /path/to/save/location/Tutorial_example.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Tutorial_example.zip
