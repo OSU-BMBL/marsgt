@@ -10,10 +10,10 @@ The source code located in this repository is organized into various files, each
 
 Here is an overview of the main files and their content:
 
-MarsGT  
-├── __init__.py  
-├── conv.py  
-├── egrn.py  
-├── marsgt_model.py  
-└── utils.py
+### MarsGT  
+&nbsp;&nbsp;&nbsp;├── __init__.py  
+&nbsp;&nbsp;&nbsp;├── conv.py  
+&nbsp;&nbsp;&nbsp;├── egrn.py  
+&nbsp;&nbsp;&nbsp;├── marsgt_model.py  
+&nbsp;&nbsp;&nbsp;└── utils.py
 
