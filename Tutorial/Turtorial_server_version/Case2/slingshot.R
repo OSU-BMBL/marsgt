@@ -5,7 +5,6 @@ library(slingshot)
 library(RColorBrewer)
 library(viridis)
 
-setwd('/fs/ess/PCON0022/DMT/B_cell_lymphoma/Input')
 rna <- Matrix::readMM('B_Gene_Cell.mtx')
 gene_names <- read.csv("Gene_names.tsv",header =FALSE)
 cell_names <- read.table('Cell_names.txt',sep =',',header = F)
@@ -43,10 +42,6 @@ sc <- slingshot(sc, clusterLabels = "labels",
                 extend = 'pc1',
 )
 
-# slingPseudotime(sc)
-
-
-
 
 ip_file = '/users/PCON0022/duanmaoteng/Final_HGT/B_cell_lymphoma/plot_save/'
 svg (file=paste(ip_file,"slingshot_c.svg",sep='/'),width=12, height=8)
@@ -75,13 +70,3 @@ for (i in nms) {
   lines(SlingshotDataSet(sc), lwd=2,col = 'Black',type = 'c')
 }
 dev.off()
-# lines(SlingshotDataSet(sc), lwd=2,col = 'Black',type = 'l',cex=1)
-# lines(SlingshotDataSet(sc), lwd=2,col = 'Black',type = 'both',cex=1)
-
-# lin1 <- getLineages(sc, 
-#                     clusterLabels = "labels", 
-#                     start.clus = '10',
-#                     end.clus = '0',
-#                     #start.clus = 'Pi16',#可指定起始细胞簇
-#                     #end.clus=c("Comp","Col15a1","Ccl19"),#可指定终点细胞簇
-#                     reducedDim = "WNN.UMAP")
