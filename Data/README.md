@@ -11,16 +11,17 @@
 ## Data Structure
 
 ### **B_lymphoma_Dataset.zip**
-- -B_lymphoma_B.h5ad (66.4 MB)
-- -B_lymphoma_all.h5ad (182.6 MB)
-- -B_socre_df.csv (60.4 MB)
-- -Cell_names.tsv (268.8 kB)
-- -Gene_Cell.mtx (271.5 MB)
-- -Gene_Peak.mtx (8.9 MB)
-- -Gene_names.tsv (129.9 kB)
-- -Peak_Cell.mtx (859.7 MB)
-- -Peak_names.tsv (2.6 MB)
-
+<small>
+- B_lymphoma_B.h5ad (66.4 MB)
+- B_lymphoma_all.h5ad (182.6 MB)
+- B_socre_df.csv (60.4 MB)
+- Cell_names.tsv (268.8 kB)
+- Gene_Cell.mtx (271.5 MB)
+- Gene_Peak.mtx (8.9 MB)
+- Gene_names.tsv (129.9 kB)
+- Peak_Cell.mtx (859.7 MB)
+- Peak_names.tsv (2.6 MB)
+<small>
 ### **Mouse_retina_Dataset.zip**
 - Cell_names.tsv (178.3 kB)
 - Cell_type.tsv (37.4 kB)
