@@ -6,7 +6,6 @@ library(tidyr)
 library(dplyr)
 library(ggpubr)
 
-setwd('/fs/ess/PCON0022/DMT/B_cell_lymphoma/Input')
 rds <- readRDS("pbmc_multimodal.downsampled20k.Tcell.seurat.RNA.rds")
 rna <- Matrix::readMM('B_Gene_Cell.mtx')
 gene_names <- read.csv("Gene_names.tsv",header =FALSE)
