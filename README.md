@@ -34,6 +34,46 @@
 * ipywidgets==8.0.6
 
 ### Installation Steps
+
+The installation process involves some optional and necessary steps. Here's the detailed breakdown:
+
+1. **Optional Step:** Install the required dependencies using pip. This step is not necessary for every user, only perform this if your project requires additional dependencies.
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2. **Necessary Step:** You can directly install MarsGT using the pip command:
+
+    ```bash
+    pip install --upgrade MarsGT
+    ```
+
+3. **Necessary Step:** You need to install either the CPU or GPU version of PyTorch as per your preference:
+
+    - **CPU Version**
+        - For Linux system (torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
+        
+            ```bash
+            pip install https://download.pytorch.org/whl/cpu/torch-1.12.0%2Bcpu-cp38-cp38-linux_x86_64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_cluster-1.6.0%2Bpt112cpu-cp38-cp38-linux_x86_64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_sparse-0.6.14-cp38-cp38-linux_x86_64.whl
+            ```
+
+        - For Windows system (torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
+
+            ```bash
+            pip install https://download.pytorch.org/whl/cpu/torch-1.12.0%2Bcpu-cp38-cp38-win_amd64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_scatter-2.0.9-cp38-cp38-win_amd64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_sparse-0.6.14-cp38-cp38-win_amd64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_cluster-1.6.0%2Bpt112cpu-cp38-cp38-win_amd64.whl
+            ```
+
+    - **GPU Version**
+        - Please visit the official PyTorch website at [PyTorch](https://pytorch.org/) to select and download the CUDA-enabled version of PyTorch that best matches your system configuration.
+        - 
+### Installation Steps
 * Install the required dependencies using pip:
 ```bash
 pip install -r requirements.txt
