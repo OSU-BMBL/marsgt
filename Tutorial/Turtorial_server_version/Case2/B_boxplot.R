@@ -6,7 +6,6 @@ library(tidyr)
 library(dplyr)
 library(ggpubr)
 
-rds <- readRDS("pbmc_multimodal.downsampled20k.Tcell.seurat.RNA.rds")
 rna <- Matrix::readMM('B_Gene_Cell.mtx')
 gene_names <- read.csv("Gene_names.tsv",header =FALSE)
 cell_names <- read.table('Cell_names.txt',sep =',',header = F)
@@ -14,7 +13,7 @@ cell_type <- read.table('Cell_types.txt',sep =',',header = F)
 # cell_type <- lapply(cell_type, as.character)
 cell_type$V1 <- as.character(cell_type$V1)
 B_umap <- as.matrix(read.table('fa_B_umap.txt',sep =',',header = F))
-pathway <- read.csv("/fs/ess/PCON0022/LiJingxian/Data/pathway/KEGG/human/pathway_human.csv")
+pathway <- read.csv("pathway_human.csv")
 
 Cellular_Processes <- unique(pathway$pathway_function[pathway$biofun_name=="09140 Cellular Processes"])
 Human_Diseases <- unique(pathway$pathway_function[pathway$biofun_name=="09160 Human Diseases"])
@@ -41,8 +40,23 @@ B_cell <- RunUMAP(B_cell, dims = 1:10)
 
 colnames(B_umap) <- c('UMAP1','UMAP2')
 rownames(B_umap) <- cell_names$V1
-B_cell@reductions$wnn.umap <- rds@reductions$wnn.umap
-B_cell@reductions$wnn.umap@cell.embeddings <- B_umap
+
+# Define a new S4 class, this class has a cell.embeddings slot
+setClass(
+  "UMAP",
+  representation(
+    cell.embeddings = "matrix"
+  )
+)
+
+# Create an instance of this class
+umap_instance <- new("UMAP")
+# Assign a value to the cell.embeddings slot
+umap_instance@cell.embeddings <- B_umap
+# Assign this instance to B_cell@reductions$wnn.umap
+B_cell@reductions$wnn.umap <- umap_instance
+
+# B_cell@reductions$wnn.umap@cell.embeddings <- B_umap
 colnames(B_umap) <- paste0("UMAP_", 1:2)
 B_cell[["umap"]] <- CreateDimReducObject(embeddings = B_umap, key = "UMAP_", assay = DefaultAssay(B_cell))
 
@@ -61,7 +75,7 @@ pathway_name <- gsub(" ","_",pathway_name)
 markers$V1 <- c(PI3K_signaling_gene_list)
 names(markers) <- pathway_name
 signature.names <- paste0(names(markers),"_UCell")
-# 主函数
+
 B_cell <- AddModuleScore_UCell(B_cell, features = markers)
 B_cell$PI3K_pathway_UCell <- B_cell$PI3K_pathway_UCell/max(B_cell$PI3K_pathway_UCell)
 B_cells_0 <- subset(B_cell, subset = cell_type == "0")
@@ -88,7 +102,7 @@ pathway_name <- gsub(" ","_",pathway_name)
 markers$V1 <- c(MAPK_signaling_gene_list)
 names(markers) <- pathway_name
 signature.names <- paste0(names(markers),"_UCell")
-# 主函数
+
 B_cell <- AddModuleScore_UCell(B_cell, features = markers)
 B_cell$MAPK_pathway_UCell <- B_cell$MAPK_pathway_UCell/max(B_cell$MAPK_pathway_UCell)
 B_cells_0 <- subset(B_cell, subset = cell_type == "0")
@@ -114,7 +128,7 @@ pathway_name <- gsub(" ","_",pathway_name)
 markers$V1 <- c(PD_signaling_gene_list)
 names(markers) <- pathway_name
 signature.names <- paste0(names(markers),"_UCell")
-# 主函数
+
 B_cell <- AddModuleScore_UCell(B_cell, features = markers)
 B_cell$PD_pathway_UCell <- B_cell$PD_pathway_UCell/max(B_cell$PD_pathway_UCell)
 B_cells_0 <- subset(B_cell, subset = cell_type == "0")
@@ -131,29 +145,29 @@ B_cells_6_value <- B_cells_6$PI3K_pathway_UCell/max(B_cell$PI3K_pathway_UCell)
 B_cells_10_value <- B_cells_10$PI3K_pathway_UCell/max(B_cell$PI3K_pathway_UCell)
 B_cells_13_value <- B_cells_13$PI3K_pathway_UCell/max(B_cell$PI3K_pathway_UCell)
 
-# 创建数据框
+# Create data frame
 data <- list(PI3K_B_cells_10_value, PI3K_B_cells_13_value, PI3K_B_cells_0_value, PI3K_B_cells_6_value,
              MAPK_B_cells_10_value, MAPK_B_cells_13_value, MAPK_B_cells_0_value, MAPK_B_cells_6_value,
              PD_B_cells_10_value, PD_B_cells_13_value, PD_B_cells_0_value, PD_B_cells_6_value)
 
-# 为每个向量创建数据框
+# Create a data frame for each vector
 data_frames <- lapply(1:length(data), function(i) {
   pathway <- c("PI3K", "MAPK", "PD")[(i - 1) %/% 4 + 1]
   B_cells <- c("B_cells_10", "B_cells_13", "B_cells_0", "B_cells_6")[(i - 1) %% 4 + 1]
   data.frame(value = data[[i]], pathway = pathway, B_cells = B_cells)
 })
 
-# 将所有数据框合并
+# Combine all data frames
 data_long <- do.call(rbind, data_frames)
 
-# 指定 group 变量的顺序
+# Specify the order of the group variable
 data_long$group <- paste(data_long$pathway, data_long$B_cells, sep = "_")
 data_long$group <- factor(data_long$group, levels = unique(data_long$group))
 
-# 修改 position_dodge() 函数的 width 参数以减小组内类别之间的距离
+# Modify the width argument of position_dodge() function to decrease the distance between categories within groups
 dodge <- position_dodge(width = 0.1)
 
-# 使用 ggplot2 绘制箱线图
+# Draw boxplot with ggplot2
 p <- ggplot(data_long, aes(x = group, y = value, fill = B_cells)) +
   geom_boxplot(position = dodge, width = 0.5) +
   theme_minimal() +
@@ -162,7 +176,7 @@ p <- ggplot(data_long, aes(x = group, y = value, fill = B_cells)) +
   scale_fill_manual(values = c("B_cells_0" = "#FFACAA", "B_cells_6" = "#894FC6", "B_cells_10" = '#7FD2FF', "B_cells_13" = "#FF9D1E")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   coord_cartesian(clip = "off") +
-  # 去掉背景中的网格虚线
+  # Remove gridlines in the background
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 p <- p +
