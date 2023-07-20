@@ -1,6 +1,6 @@
 # Tutorial Server Version Case1
 
-## Data Download
+## Input Data Download
 ### You can choose to download them directly from your browser by visiting the following URL: 
 - [Mouse_retina Dataset (.zip) (123.7 MB)](https://zenodo.org/record/8160180/files/Mouse_retina.zip?download=1)
 ### You also can download them from cmd command：
@@ -25,7 +25,7 @@
 
 This project includes a tutorial that demonstrates the use and understanding of different parts of the project, using Server Version Case1 as an example. Before starting with this tutorial, make sure you have downloaded all the files of the project and placed them at the correct paths.
 
-## Download and Configure Files
+## Intermediate Result Data Download
 
 All intermediate results files are in the `marsgt/Tutorial/Turtorial_server_version/Case1` directory. Before starting with this tutorial, you need to download these files.
 
@@ -36,5 +36,6 @@ For example, if you see the following code:
 ```python
 with open('path/to/your/file.txt', 'r') as file:
     data = file.read()
+```
 You need to change 'path/to/your/file.txt' to the actual path of your file.
 
