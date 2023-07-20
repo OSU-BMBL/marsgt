@@ -1,4 +1,3 @@
-# BiocManager::install("slingshot")
 library(Seurat)
 library(ggplot2)
 library(slingshot)
@@ -9,18 +8,13 @@ rna <- Matrix::readMM('B_Gene_Cell.mtx')
 gene_names <- read.csv("Gene_names.tsv",header =FALSE)
 cell_names <- read.table('Cell_names.txt',sep =',',header = F)
 cell_type <- read.table('Cell_types.txt',sep =',',header = F)
-# cell_type <- lapply(cell_type, as.character)
 cell_type$V1 <- as.character(cell_type$V1)
 B_umap <- as.matrix(read.table('fa_B_umap.txt',sep =',',header = F))
-# B_umap <- as.matrix(read.table('B_umap.txt',sep =',',header = F))
 
 rna <- as(rna, "dgCMatrix")
 rna <- t(rna)
 colnames(rna) <- cell_names$V1
 rownames(rna) <- gene_names$V1
-# rownames(cell_type) <- cell_names$V1
-# rownames(gene_names) <- gene_names$V1
-# names(gene_names)<-c('gene_short_name')
 
 B_cell <- CreateSeuratObject(counts = rna)
 B_cell@meta.data$labels <- as.factor(cell_type$V1)
@@ -54,8 +48,6 @@ sc <- slingshot(sc, clusterLabels = "labels",
                 end.clus = c('6'),
                 extend = 'pc1',
 )
-
-# slingPseudotime(sc)
 
 ip_file = 'plot_save/'
 svg (file=paste(ip_file,"slingshot_c.svg",sep='/'),width=12, height=8)
