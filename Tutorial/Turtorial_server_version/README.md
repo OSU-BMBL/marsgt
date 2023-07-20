@@ -22,7 +22,7 @@
 
 </small>
 
-This project includes a tutorial that demonstrates the use and understanding of different parts of the project, using Server Version Case1 as an example. Before starting with this tutorial, make sure you have downloaded all the files of the project and placed them at the correct paths.
+This project includes a tutorial that demonstrates the use and understanding of different parts of the project, using Server Version Case2 as an example. Before starting with this tutorial, make sure you have downloaded all the files of the project and placed them at the correct paths.
 
 ## Intermediate Result Data Download
 
