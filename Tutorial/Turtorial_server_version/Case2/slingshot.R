@@ -23,39 +23,46 @@ rownames(rna) <- gene_names$V1
 # names(gene_names)<-c('gene_short_name')
 
 B_cell <- CreateSeuratObject(counts = rna)
-rds <- readRDS("pbmc_multimodal.downsampled20k.Tcell.seurat.RNA.rds")
-
-# B_cell[["umap"]] <- CreateDimReducObject(embeddings=as.matrix(B_umap))
-# B_cell@reductions$umap@cell.embeddings <- as.matrix(B_umap)
 B_cell@meta.data$labels <- as.factor(cell_type$V1)
 colnames(B_umap) <- c('UMAP1','UMAP2')
 rownames(B_umap) <- cell_names$V1
-B_cell@reductions$wnn.umap <- rds@reductions$wnn.umap
-B_cell@reductions$wnn.umap@cell.embeddings <- B_umap
+
+# Define a new S4 class, this class has a cell.embeddings slot
+setClass(
+  "UMAP",
+  representation(
+    cell.embeddings = "matrix"
+  )
+)
+
+# Create an instance of this class
+umap_instance <- new("UMAP")
+# Assign a value to the cell.embeddings slot
+umap_instance@cell.embeddings <- B_umap
+# Assign this instance to B_cell@reductions$wnn.umap
+B_cell@reductions$wnn.umap <- umap_instance
+
+# B_cell@reductions$wnn.umap@cell.embeddings <- B_umap
+colnames(B_umap) <- paste0("UMAP_", 1:2)
+B_cell[["umap"]] <- CreateDimReducObject(embeddings = B_umap, key = "UMAP_", assay = DefaultAssay(B_cell))
 
 # slingClusterLabels(sc)
 sc <- as.SingleCellExperiment(B_cell)
 sc <- slingshot(sc, clusterLabels = "labels", 
-                reducedDim = "WNN.UMAP", 
+                reducedDim = "UMAP", 
                 start.clus = '10',
                 end.clus = c('6'),
                 extend = 'pc1',
 )
 
+# slingPseudotime(sc)
 
-ip_file = '/users/PCON0022/duanmaoteng/Final_HGT/B_cell_lymphoma/plot_save/'
+ip_file = 'plot_save/'
 svg (file=paste(ip_file,"slingshot_c.svg",sep='/'),width=12, height=8)
-plot(reducedDims(sc)$WNN.UMAP,
+plot(reducedDims(sc)$UMAP,
      col = c("#FFACAA","#7FD2FF","#FF9D1E","#894FC6")[as.factor(sc$labels)],pch=16,
      asp=1)
 lines(SlingshotDataSet(sc), lwd=2,col = 'Black',type = 'c')
-dev.off()
-
-svg (file=paste(ip_file,"slingshot_l.svg",sep='/'),width=12, height=8)
-plot(reducedDims(sc)$WNN.UMAP,
-     col = c("#FFACAA","#7FD2FF","#FF9D1E","#894FC6")[as.factor(sc$labels)],pch=16,
-     asp=1)
-lines(SlingshotDataSet(sc), lwd=2,col = 'Black',type = 'l',cex=1)
 dev.off()
 
 svg (file=paste(ip_file,"slingshot_psedotime.svg",sep='/'),width=12, height=8)
@@ -69,4 +76,3 @@ for (i in nms) {
   plot(reducedDim(sc), col = colors, pch = 16, cex = 0.5, main = i)
   lines(SlingshotDataSet(sc), lwd=2,col = 'Black',type = 'c')
 }
-dev.off()
