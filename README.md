@@ -104,7 +104,7 @@ The installation process involves some optional and necessary steps. Here's the 
 
 ## MarsGT Model Tutorial
 
-We have curated tutorials to assist you in operating the MarsGT model. You can locate these tutorials in the marsgt/Tutorial directory of the project. 
+We have curated tutorials to assist you in operating the MarsGT model. You can locate these tutorials in the marsgt/Tutorial directory of the project.  
 Additionally, we have provided an Example Dataset to aid you in testing and acquainting yourself with the MarsGT functionality:  
 &nbsp;&nbsp;&nbsp;&nbsp;[**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb) 
 
