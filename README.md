@@ -13,7 +13,7 @@
 
 * Python Version == 3.8.0
 * Hardware Architecture: x86_64
-* Operating System: GNU/Linux(windows)
+* Operating System: GNU/Linux or Windows
 
 ### Dependencies, MarsGT has the following dependencies:
 
