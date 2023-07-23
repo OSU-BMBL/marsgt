@@ -2,7 +2,7 @@
 
 ## Description
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MarsGT, for rare cell identification from matched scRNA-seq (snRNA-seq) and scATAC-seq (snATAC-seq),includes genes, enhancers, and cells in a heterogeneous graph to simultaneously identify major cell clusters and rare cell clusters based on eRegulon.
+MarsGT, for rare cell identification from matched scRNA-seq (snRNA-seq) and scATAC-seq (snATAC-seq),includes genes, enhancers, and cells in a heterogeneous graph to simultaneously identify major cell clusters and rare cell clusters based on eRegulon.
 <p align="center">
   <img src="./images/MarsGT%20Flowchart%201.jpg" alt="MarsGT Flowchart" width="900">
 </p>
@@ -104,13 +104,13 @@ The installation process involves some optional and necessary steps. Here's the 
 
 ## MarsGT Model Tutorial
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We have curated tutorials to assist you in operating the MarsGT model. You can locate these tutorials in the marsgt/Tutorial directory of the project.Additionally, we have provided an Example Dataset to aid you in testing and acquainting yourself with the MarsGT functionality:  
+We have curated tutorials to assist you in operating the MarsGT model. You can locate these tutorials in the marsgt/Tutorial directory of the project.Additionally, we have provided an Example Dataset to aid you in testing and acquainting yourself with the MarsGT functionality:  
 [**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb) 
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Beyond the aforementioned resources, we offer two versions of the tutorial designed to reproduce the results of the paper:
+Beyond the aforementioned resources, we offer two versions of the tutorial designed to reproduce the results of the paper:
 
 1. [**Local Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Tutorial_local_version): This version is specifically created for running the model locally on your computer. Utilize this version if you are aiming to reproduce the results documented in the paper.
 
 2. [**Server Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Turtorial_server_version): This version is crafted for running the model on a server. Opt for this version if your goal is to reproduce both the model running process and the subsequent results.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To begin the tutorial, select the version that suits your needs or choose the example dataset. Subsequently, follow the directives provided in the README file within the respective directory or refer to the Jupyter notebook for the example dataset.
+To begin the tutorial, select the version that suits your needs or choose the example dataset. Subsequently, follow the directives provided in the README file within the respective directory or refer to the Jupyter notebook for the example dataset.
