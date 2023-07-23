@@ -108,8 +108,8 @@ We have provided tutorials to guide you in running the MarsGT model. These tutor
 
 There are two versions of the tutorial:
 
-1. [**Local Version**](https://github.com/mtduan/marsgt/tree/main/marsgt/Tutorial/Tutorial_local_version): This version is intended for running the model locally on your computer. Use this if you want to reproduce the results of the paper.
+1. [**Local Version**](https://github.com/mtduan/marsgt/tree/main/Tutorial/Tutorial_local_version): This version is intended for running the model locally on your computer. Use this if you want to reproduce the results of the paper.
 
-2. [**Server Version**](https://github.com/mtduan/marsgt/tree/main/marsgt/Tutorial/Tutorial_sever_version): This version is intended for running the model on a server. Use this if you want to reproduce the model running process and the results.
+2. [**Server Version**](https://github.com/mtduan/marsgt/tree/main/Tutorial/Turtorial_server_version): This version is intended for running the model on a server. Use this if you want to reproduce the model running process and the results.
 
 To start with the tutorial, click on the version you want to use. Then, follow the instructions given in the README file inside the corresponding directory.
