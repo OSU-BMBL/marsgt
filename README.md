@@ -106,9 +106,9 @@ The installation process involves some optional and necessary steps. Here's the 
 
 We have provided tutorials to guide you in running the MarsGT model. These tutorials are located in the `marsgt/Tutorial` directory of the project.
 
-we have also provided an [**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb) for testing and familiarizing yourself with the functionality of MarsGT. 
+we have provided an [**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb) for testing and familiarizing yourself with the functionality of MarsGT. 
 
-In addition to the above, there are two versions of the tutorial to reproduce the results of the paper:
+In addition to the above, there are also two versions of the tutorial to reproduce the results of the paper:
 
 1. [**Local Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Tutorial_local_version): This version is intended for running the model locally on your computer. Use this if you want to reproduce the results of the paper.
 
