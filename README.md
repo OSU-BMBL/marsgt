@@ -104,14 +104,15 @@ The installation process involves some optional and necessary steps. Here's the 
 
 ## MarsGT Model Tutorial
 
-We have provided tutorials to guide you in running the MarsGT model. These tutorials are located in the `marsgt/Tutorial` directory of the project.
+We have curated tutorials to assist you in operating the MarsGT model. You can locate these tutorials in the marsgt/Tutorial directory of the project.
 
-we have provided an [**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb) for testing and familiarizing yourself with the functionality of MarsGT. 
+Additionally, we have provided an Example Dataset to aid you in testing and acquainting yourself with the MarsGT functionality:
+[**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb) 
 
-In addition to the above, there are also two versions of the tutorial to reproduce the results of the paper:
+Beyond the aforementioned resources, we offer two versions of the tutorial designed to reproduce the results of the paper:
 
-1. [**Local Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Tutorial_local_version): This version is intended for running the model locally on your computer. Use this if you want to reproduce the results of the paper.
+1. [**Local Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Tutorial_local_version): This version is specifically created for running the model locally on your computer. Utilize this version if you are aiming to reproduce the results documented in the paper.
 
-2. [**Server Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Turtorial_server_version): This version is intended for running the model on a server. Use this if you want to reproduce the model running process and the results.
+2. [**Server Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Turtorial_server_version): This version is crafted for running the model on a server. Opt for this version if your goal is to reproduce both the model running process and the subsequent results.
 
-To start with the tutorial, click on the version you want to use or the example dataset. Then, follow the instructions given in the README file inside the corresponding directory or the Jupyter notebook for the example dataset.
+To begin the tutorial, select the version that suits your needs or choose the example dataset. Subsequently, follow the directives provided in the README file within the respective directory or refer to the Jupyter notebook for the example dataset.
