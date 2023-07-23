@@ -102,3 +102,14 @@ The installation process involves some optional and necessary steps. Here's the 
     curl -o Mouse_retina.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Mouse_retina.zip
     curl -o Tutorial_example.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Tutorial_example.zip
 
+## MarsGT Model Tutorial
+
+We have provided tutorials to guide you in running the MarsGT model. These tutorials are located in the `marsgt/Tutorial` directory of the project.
+
+There are two versions of the tutorial:
+
+1. [**Local Version**](https://github.com/mtduan/marsgt/tree/main/marsgt/Tutorial/Tutorial_local_version): This version is intended for running the model locally on your computer. Use this if you want to reproduce the results of the paper.
+
+2. [**Server Version**](https://github.com/mtduan/marsgt/tree/main/marsgt/Tutorial/Tutorial_sever_version): This version is intended for running the model on a server. Use this if you want to reproduce the model running process and the results.
+
+To start with the tutorial, click on the version you want to use. Then, follow the instructions given in the README file inside the corresponding directory.
