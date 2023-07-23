@@ -42,6 +42,7 @@ The installation process involves some optional and necessary steps. Here's the 
 
     ```bash
     conda create --name marsgt python=3.8.0
+    conda activate marsgt
     ```
 
 2. **Necessary Step:** You can directly install MarsGT using the pip command:
