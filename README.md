@@ -38,10 +38,10 @@
 
 The installation process involves some optional and necessary steps. Here's the detailed breakdown:
 
-1. **Optional Step:** Install the required dependencies using pip. This step is not necessary for every user, only perform this if your project requires additional dependencies.
+1. **Recommended Step:** Create a new environment, you should use python 3.8.0.
 
     ```bash
-    pip install -r requirements.txt
+    conda create --name marsgt python=3.8.0
     ```
 
 2. **Necessary Step:** You can directly install MarsGT using the pip command:
@@ -53,7 +53,7 @@ The installation process involves some optional and necessary steps. Here's the 
 3. **Necessary Step:** You need to install either the CPU or GPU version of PyTorch as per your preference:
 
     - **CPU Version**
-        - For Linux system (torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
+        - For Linux system (You need to select the version that is compatible with your system's graphics card.For example:torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
         
             ```bash
             pip install https://download.pytorch.org/whl/cpu/torch-1.12.0%2Bcpu-cp38-cp38-linux_x86_64.whl
