@@ -63,12 +63,10 @@
 - Sample (folder)
     - HD1 
     - HD2 
-    - P1  
-    - ...
+    - P1 ...    
 - Dataframe (folder)
     - 1_s1_egrn.csv
-    - 1_s2_egrn.csv
-    - ...
+    - 1_s2_egrn.csv ...  
 - Cell_emb10.csv (50.7 MB)
 - Cell_names.tsv (178.3 kB)
 - Gene_Cell.mtx (41.7 MB)
