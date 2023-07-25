@@ -58,20 +58,25 @@
 </small>
 
 #### **PBMCS_Dataset.zip**
-
 <small>
 
-  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sample 
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dataframe   
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cell_emb10.csv (50.7 MB)  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cell_names.tsv (178.3 kB)  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gene_Cell.mtx (41.7 MB)  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gene_names.tsv (39.3 kB)  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gene_Peak.mtx (2.1 MB)  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Peak_Cell.mtx (372.8 MB)  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Peak_names.tsv (1.4 MB)  
-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ycpu.h5ad (64.9 MB)
+- Sample (folder)
+    - HD1 
+    - HD2 
+    - P1  
+    - ...
+- Dataframe (folder)
+    - 1_s1_egrn.csv
+    - 1_s2_egrn.csv
+    - ...
+- Cell_emb10.csv (50.7 MB)
+- Cell_names.tsv (178.3 kB)
+- Gene_Cell.mtx (41.7 MB)
+- Gene_names.tsv (39.3 kB)
+- Gene_Peak.mtx (2.1 MB)
+- Peak_Cell.mtx (372.8 MB)
+- Peak_names.tsv (1.4 MB)
+- ycpu.h5ad (64.9 MB)
 
 </small>
 
