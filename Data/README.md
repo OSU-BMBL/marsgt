@@ -65,16 +65,17 @@
     - HD2 
     - P1 ...    
 - Dataframe
-    - 1_s1_egrn.csv
-    - 1_s2_egrn.csv ...  
-- Cell_emb10.csv (50.7 MB)
-- Cell_names.tsv (178.3 kB)
-- Gene_Cell.mtx (41.7 MB)
-- Gene_names.tsv (39.3 kB)
-- Gene_Peak.mtx (2.1 MB)
-- Peak_Cell.mtx (372.8 MB)
-- Peak_names.tsv (1.4 MB)
-- ycpu.h5ad (64.9 MB)
+    - 1_total_egrn.csv (15.4 MB)
+    - 9_total_egrn.csv (14.5 MB)
+    - 12_total_egrn.csv (3.4 MB)...  
+- Cell_emb10.csv (80.6 MB)
+- Cell_names.tsv (2.0 MB)
+- Gene_Cell.mtx (2.5 GB)
+- Gene_names.tsv (107.7 kB)
+- Gene_Peak.mtx (158.7 MB)
+- Peak_Cell.mtx (3.6 GB)
+- Peak_names.tsv (303.4 kB)
+- ycpu.h5ad (1.6 GB)
 
 </small>
 
