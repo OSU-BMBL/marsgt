@@ -8,7 +8,7 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The source code located in this repository is organized into various files, each serving a specific purpose in the overall functioning of the MarsGT project.Here is an overview of the main files and their content:
 
-### MarsGT  
+### MarsGT Code Structure
 
 <small>
   
