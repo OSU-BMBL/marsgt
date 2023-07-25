@@ -13,7 +13,7 @@ MarsGT, for rare cell identification from matched scRNA-seq (snRNA-seq) and scAT
 
 * Python Version == 3.8.0
 * Hardware Architecture: x86_64
-* Operating System: GNU/Linux or Windows
+* Operating System: GNU/Linux or Windows or MacOS
 
 ### Dependencies, MarsGT has the following dependencies:
 
@@ -41,17 +41,11 @@ The installation process involves some optional and necessary steps. Here's the 
 1. **Recommended Step:** Create a new environment, you should use python 3.8.0.
 
     ```bash
-    conda create --name marsgt python=3.8.0
+    conda create --name marsgt python=3.8
     conda activate marsgt
     ```
 
-2. **Necessary Step:** You can directly install MarsGT using the pip command:
-
-    ```bash
-    pip install --upgrade MarsGT
-    ```
-
-3. **Necessary Step:** You need to install either the CPU or GPU version of PyTorch as per your preference:
+2. **Necessary Step:** You need to install either the CPU or GPU version of PyTorch as per your preference:
 
     - **CPU Version**
         - For Linux system (torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
@@ -70,6 +64,14 @@ The installation process involves some optional and necessary steps. Here's the 
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_scatter-2.0.9-cp38-cp38-win_amd64.whl
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_sparse-0.6.14-cp38-cp38-win_amd64.whl
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_cluster-1.6.0%2Bpt112cpu-cp38-cp38-win_amd64.whl
+            ```
+       - For Mac system (torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
+
+            ```bash
+            pip install torch==1.2.0
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_scatter-2.0.9-cp38-cp38-macosx_10_15_x86_64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_cluster-1.6.0-cp38-cp38-macosx_10_15_x86_64.whl
+            pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_sparse-0.6.14-cp38-cp38-macosx_10_15_x86_64.whl
             ```
 
     - **GPU Version**
@@ -90,6 +92,14 @@ The installation process involves some optional and necessary steps. Here's the 
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcu116/torch_sparse-0.6.15%2Bpt112cu116-cp38-cp38-win_amd64.whl
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcu116/torch_cluster-1.6.0%2Bpt112cu116-cp38-cp38-win_amd64.whl
             ```
+             
+        - For MacOS system(According to the official PyTorch documentation, CUDA is not available on MacOS, please use the default package):
+
+3. **Necessary Step:** You can directly install MarsGT using the pip command:
+
+    ```bash
+    pip install --upgrade MarsGT
+    ```
              
 ## Data Download
 ### You can choose to download them directly from your browser by visiting the following URL: 
