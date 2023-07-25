@@ -10,6 +10,20 @@
     curl -o /path/to/save/location/Tutorial_example.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Tutorial_example.zip
 ### Dataset Structure:
 
+#### **Tutorial_example.zip**
+
+<small>
+
+- &nbsp;&nbsp;&nbsp;ATAC.npz (2.6 MB)
+- &nbsp;&nbsp;&nbsp;Gene_Peak_.npz (1.0 MB)
+- &nbsp;&nbsp;&nbsp;RNA.npz (966.6 kB)
+- &nbsp;&nbsp;&nbsp;RNA_CD4+ T naive490_Plasma cell10.txt (0 Bytes)
+- &nbsp;&nbsp;&nbsp;gene_name.npy (662.0 kB)
+- &nbsp;&nbsp;&nbsp;label500.npy (1.3 kB)
+- &nbsp;&nbsp;&nbsp;peak_name.npy (7.6 MB)
+
+</small>
+
 #### **B_lymphoma_Dataset.zip**
 
 <small>
@@ -43,16 +57,62 @@
 
 </small>
 
-#### **Tutorial_example.zip**
+#### **PBMCS**
 
 <small>
 
-- &nbsp;&nbsp;&nbsp;ATAC.npz (2.6 MB)
-- &nbsp;&nbsp;&nbsp;Gene_Peak_.npz (1.0 MB)
-- &nbsp;&nbsp;&nbsp;RNA.npz (966.6 kB)
-- &nbsp;&nbsp;&nbsp;RNA_CD4+ T naive490_Plasma cell10.txt (0 Bytes)
-- &nbsp;&nbsp;&nbsp;gene_name.npy (662.0 kB)
-- &nbsp;&nbsp;&nbsp;label500.npy (1.3 kB)
-- &nbsp;&nbsp;&nbsp;peak_name.npy (7.6 MB)
+- &nbsp;&nbsp;&nbsp;cell_emb10.csv
+- &nbsp;&nbsp;&nbsp;Cell_names.tsv
+- &nbsp;&nbsp;&nbsp;Gene_Cell.mtx
+- &nbsp;&nbsp;&nbsp;Gene_names.tsv
+- &nbsp;&nbsp;&nbsp;Gene_Peak.mtx
+- &nbsp;&nbsp;&nbsp;Peak_Cell.mtx
+- &nbsp;&nbsp;&nbsp;Peak_names.tsv
+- &nbsp;&nbsp;&nbsp;ycpu.h5ad
+
+</small>
+
+##### **Dataframe**
+
+<small>
+
+- &nbsp;&nbsp;&nbsp;12_s2_egrn.csv
+- &nbsp;&nbsp;&nbsp;12_s3_egrn.csv
+- &nbsp;&nbsp;&nbsp;...
+
+</small>
+
+##### **Sample**
+
+###### **HD1**
+
+<small>
+
+- &nbsp;&nbsp;&nbsp;Cell_names.tsv
+- &nbsp;&nbsp;&nbsp;Gene_Cell.mtx
+- &nbsp;&nbsp;&nbsp;Gene_names.tsv
+- &nbsp;&nbsp;&nbsp;Gene_Peak.mtx
+- &nbsp;&nbsp;&nbsp;Peak_Cell.mtx
+- &nbsp;&nbsp;&nbsp;Peak_names.tsv
+
+</small>
+
+###### **P1**
+
+<small>
+
+- &nbsp;&nbsp;&nbsp;Cell_names.tsv
+- &nbsp;&nbsp;&nbsp;Cell_names1.csv
+- &nbsp;&nbsp;&nbsp;Gene_Cell.mtx
+- &nbsp;&nbsp;&nbsp;Gene_names.tsv
+- &nbsp;&nbsp;&nbsp;Gene_names1.csv
+- &nbsp;&nbsp;&nbsp;Gene_Peak.mtx
+- &nbsp;&nbsp;&nbsp;Peak_Cell.mtx
+- &nbsp;&nbsp;&nbsp;Peak_names.tsv
+- &nbsp;&nbsp;&nbsp;Peak_names1.csv
+
+</small>
+
+###### **...**
 
 </small>
