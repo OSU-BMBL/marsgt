@@ -45,7 +45,7 @@ The installation process involves some optional and necessary steps. Here's the 
     conda activate marsgt
     ```
 
-2. **Necessary Step:** You need to install either the CPU or GPU version of PyTorch as per your preference:
+2. **Necessary Step:** You need to install either the CPU or GPU version of PyTorch as per your preference, We recommend using the GPU version, which has a faster running speed compared to the CPU version.:
 
     - **CPU Version**
         - For Linux system (torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
