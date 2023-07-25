@@ -52,7 +52,7 @@ def batch_select_whole(RNA_matrix, ATAC_matrix, neighbor=[20], cell_size=30):
                 rna_ = RNA_matrix1[:, node].todense()
                 rna_[rna_ < 5] = 0
                 gene_indices = subgraph(RNA_matrix.transpose(), node, neighbor, np.squeeze(np.array(np.log(rna_ + 1))))
-                peak_indices = subgraph(RNA_matrix.transpose(), node, neighbor,
+                peak_indices = subgraph(ATAC_matrix.transpose(), node, neighbor,
                                         np.squeeze(np.array(np.log(ATAC_matrix[:, node].todense() + 1))))
                 dic[node] = {'g': gene_indices, 'p': peak_indices}
                 gene_indices_all = gene_indices_all + gene_indices
@@ -64,7 +64,7 @@ def batch_select_whole(RNA_matrix, ATAC_matrix, neighbor=[20], cell_size=30):
                 rna_[rna_ < 5] = 0
                 gene_indices = subgraph(RNA_matrix.transpose(), node, neighbor,
                                         np.squeeze(np.array(np.log(rna_[:, node].todense() + 1))))
-                peak_indices = subgraph(RNA_matrix.transpose(), node, neighbor,
+                peak_indices = subgraph(ATAC_matrix.transpose(), node, neighbor,
                                         np.squeeze(np.array(np.log(ATAC_matrix[:, node].todense() + 1))))
                 dic[node] = {'g': gene_indices, 'p': peak_indices}
                 gene_indices_all = gene_indices_all + gene_indices
@@ -106,7 +106,7 @@ class LabelSmoothing(nn.Module):
         return loss.mean()
 
 
-def initial_clustering(RNA_matrix, n_neighbors=15, n_pcs=40, resolution=0.5):
+def initial_clustering(RNA_matrix, custom_n_neighbors=None, n_pcs=40, custom_resolution=None, use_rep=None):
     print(
         '\tWhen the number of cells is less than or equal to 500, it is recommended to set the resolution value to 0.2.')
     print('\tWhen the number of cells is within the range of 500 to 5000, the resolution value should be set to 0.5.')
@@ -114,19 +114,32 @@ def initial_clustering(RNA_matrix, n_neighbors=15, n_pcs=40, resolution=0.5):
 
     def segment_function(x):
         if x <= 500:
-            return 0.2,5
+            return 0.2, 5
         elif x <= 5000:
-            return 0.5,10
+            return 0.5, 10
         else:
-            return 0.8,15
+            return 0.8, 15
+
     adata = ad.AnnData(RNA_matrix.transpose(), dtype='int32')
-    resolution,n_neighbors = segment_function(adata.shape[0])
+
+    # If the user did not provide a custom resolution or n_neighbors value, use the values calculated by segment_function
+    if custom_resolution is None or custom_n_neighbors is None:
+        resolution, n_neighbors = segment_function(adata.shape[0])
+    else:
+        resolution = custom_resolution
+        n_neighbors = custom_n_neighbors
+
     sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
-    sc.pp.neighbors(adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
+
+    # Use the user-provided embedding if available, otherwise use n_pcs
+    if use_rep is not None:
+        adata.obsm['use_rep']=use_rep
+        sc.pp.neighbors(adata, use_rep='use_rep', n_neighbors=n_neighbors)
+    else:
+        sc.pp.neighbors(adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
+
     sc.tl.leiden(adata, resolution)
-    #     sc.tl.umap(adata)
-    #     sc.pl.umap(adata, color=['leiden'])
     return adata.obs['leiden']
 
 
