@@ -60,14 +60,6 @@
 #### **PBMCS_Dataset.zip**
 <small>
 
-- Sample
-    - HD1 
-    - HD2 
-    - P1 ...    
-- Dataframe
-    - 1_total_egrn.csv (15.4 MB)
-    - 9_total_egrn.csv (14.5 MB)
-    - 12_total_egrn.csv (3.4 MB)...  
 - Cell_emb10.csv (80.6 MB)
 - Cell_names.tsv (2.0 MB)
 - Gene_Cell.mtx (2.5 GB)
@@ -76,6 +68,15 @@
 - Peak_Cell.mtx (3.6 GB)
 - Peak_names.tsv (303.4 kB)
 - ycpu.h5ad (1.6 GB)
+
+- Sample
+    - HD1 
+    - HD2 
+    - P1 ...    
+- Dataframe
+    - 1_total_egrn.csv (15.4 MB)
+    - 9_total_egrn.csv (14.5 MB)
+    - 12_total_egrn.csv (3.4 MB)...  
 
 </small>
 
