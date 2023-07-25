@@ -76,7 +76,7 @@
 - Dataframe
     - 1_total_egrn.csv (15.4 MB)
     - 9_total_egrn.csv (14.5 MB)
-    - 12_total_egrn.csv (3.4 MB)...  
+    - 12_total_egrn.csv (3.4 MB) ...  
 
 </small>
 
