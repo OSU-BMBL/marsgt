@@ -4,22 +4,28 @@
 ### You can choose to download them directly from your browser by visiting the following URL: 
 - [PBMCs Dataset (.zip) (2.5 GB)](https://zenodo.org/record/8163160/files/PBMCs.zip?download=1)
 ### You also can download them from cmd command：
-    curl -o Mouse_retina.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/Mouse_retina.zip
+    curl -o PBMCs.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/PBMCs.zip
 ### Dataset Structure:
-#### **Mouse_retina_Dataset.zip**
-
+#### **PBMCS_Dataset.zip**
 <small>
 
-- &nbsp;&nbsp;&nbsp;Cell_names.tsv (178.3 kB)
-- &nbsp;&nbsp;&nbsp;Cell_type.tsv (37.4 kB)
-- &nbsp;&nbsp;&nbsp;Gene_Cell.mtx (41.7 MB)
-- &nbsp;&nbsp;&nbsp;Gene_Peak.mtx (2.1 MB)
-- &nbsp;&nbsp;&nbsp;Gene_names.tsv (39.3 kB)
-- &nbsp;&nbsp;&nbsp;Mouse_retina_BC.h5ad (39.7 MB)
-- &nbsp;&nbsp;&nbsp;Mouse_retina_all.h5ad (64.9 MB)
-- &nbsp;&nbsp;&nbsp;Peak_Cell.mtx (372.8 MB)
-- &nbsp;&nbsp;&nbsp;Peak_names.tsv (1.4 MB)
-- &nbsp;&nbsp;&nbsp;Total_socre_df.csv (46.6 MB)
+- Cell_emb10.csv (80.6 MB)
+- Cell_names.tsv (2.0 MB)
+- Gene_Cell.mtx (2.5 GB)
+- Gene_names.tsv (107.7 kB)
+- Gene_Peak.mtx (158.7 MB)
+- Peak_Cell.mtx (3.6 GB)
+- Peak_names.tsv (303.4 kB)
+- ycpu.h5ad (1.6 GB)
+
+- Sample
+    - HD1 
+    - HD2 
+    - P1 ...    
+- Dataframe
+    - 1_total_egrn.csv (15.4 MB)
+    - 9_total_egrn.csv (14.5 MB)
+    - 12_total_egrn.csv (3.4 MB) ...  
 
 </small>
 
