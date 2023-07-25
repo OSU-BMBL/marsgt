@@ -68,7 +68,7 @@ The installation process involves some optional and necessary steps. Here's the 
        - For MacOS system (torch-1.12.0+ torch_cluster-1.6.0+ torch_scatter-2.0.9+ torch_sparse-0.6.14):
 
             ```bash
-            pip install torch==1.2.0
+            conda install pytorch==1.12.0
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_scatter-2.0.9-cp38-cp38-macosx_10_15_x86_64.whl
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_cluster-1.6.0-cp38-cp38-macosx_10_15_x86_64.whl
             pip install https://data.pyg.org/whl/torch-1.12.0%2Bcpu/torch_sparse-0.6.14-cp38-cp38-macosx_10_15_x86_64.whl
