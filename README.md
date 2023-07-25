@@ -102,7 +102,7 @@ The installation process involves some optional and necessary steps. Here's the 
     ```
              
 ## Data Download
-### You can choose to download them directly from your browser by visiting the following URL: 
+### You can choose to download them directly from your browser by the following URL: 
 - [Tutorial_example (.zip) (5.3 MB)](https://zenodo.org/record/8163160/files/Tutorial_example.zip?download=1)
 - [Case1: Mouse_retina Dataset (.zip) (123.7 MB)](https://zenodo.org/record/8163160/files/Mouse_retina.zip?download=1)
 - [Case2: B_lymphoma Dataset (.zip) (288.0 MB)](https://zenodo.org/record/8163160/files/B_lymphoma.zip?download=1)
