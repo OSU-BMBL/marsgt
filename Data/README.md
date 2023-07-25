@@ -1,8 +1,8 @@
 ## Data Download
 ### You can choose to download them directly from your browser by visiting the following URL: 
-- [B_lymphoma Dataset (.zip) (288.0 MB)](https://zenodo.org/record/8160180/files/B_lymphoma.zip?download=1)
-- [Mouse_retina Dataset (.zip) (123.7 MB)](https://zenodo.org/record/8160180/files/Mouse_retina.zip?download=1)
-- [Tutorial_example (.zip) (5.3 MB)](https://zenodo.org/record/8160180/files/Tutorial_example.zip?download=1)
+- [B_lymphoma Dataset (.zip) (288.0 MB)](https://zenodo.org/record/8163160/files/B_lymphoma.zip?download=1)
+- [Mouse_retina Dataset (.zip) (123.7 MB)](https://zenodo.org/record/8163160/files/Mouse_retina.zip?download=1)
+- [Tutorial_example (.zip) (5.3 MB)](https://zenodo.org/record/8163160/files/Tutorial_example.zip?download=1)
   
 ### You also can download them from cmd command：
     curl -o /path/to/save/location/B_lymphoma.zip https://zenodo.org/api/files/cf6453c0-0853-4633-a9d3-e571fb8ba47e/B_lymphoma.zip
