@@ -60,11 +60,11 @@
 #### **PBMCS_Dataset.zip**
 <small>
 
-- Sample (folder)
+- Sample
     - HD1 
     - HD2 
     - P1 ...    
-- Dataframe (folder)
+- Dataframe
     - 1_s1_egrn.csv
     - 1_s2_egrn.csv ...  
 - Cell_emb10.csv (50.7 MB)
