@@ -4,7 +4,7 @@
 ### You can choose to download them directly from your browser by visiting the following URL: 
 - [B_lymphoma Dataset (.zip) (288.0 MB)](https://zenodo.org/record/8160180/files/B_lymphoma.zip?download=1)
 ### You also can download them from cmd command：
-    curl -o /path/to/save/location/B_lymphoma.zip https://zenodo.org/api/files/cf6453c0-0853-4633-a9d3-e571fb8ba47e/B_lymphoma.zip
+    curl -o  B_lymphoma.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/B_lymphoma.zip
 ### Dataset Structure:
 #### **B_lymphoma_Dataset.zip**
 
