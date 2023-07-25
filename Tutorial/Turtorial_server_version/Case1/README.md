@@ -2,9 +2,9 @@
 
 ## Input Data Download
 ### You can choose to download them directly from your browser by visiting the following URL: 
-- [Mouse_retina Dataset (.zip) (123.7 MB)](https://zenodo.org/record/8160180/files/Mouse_retina.zip?download=1)
+- [Mouse_retina Dataset (.zip) (123.7 MB)](123.7 MB)](https://zenodo.org/record/8163160/files/Mouse_retina.zip?download=1)
 ### You also can download them from cmd command：
-    curl -o /path/to/save/location/Mouse_retina.zip https://zenodo.org/api/files/d749ff9e-ff3a-41a2-a922-c862cf962e66/Mouse_retina.zip
+   curl -o Mouse_retina.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/Mouse_retina.zip
 ### Dataset Structure:
 #### **Mouse_retina_Dataset.zip**
 
