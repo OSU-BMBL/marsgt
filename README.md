@@ -11,7 +11,7 @@ MarsGT, for rare cell identification from matched scRNA-seq (snRNA-seq) and scAT
 
 ### System Requirements
 
-* Python Version >=3.8
+* Python Version >=3.8.0
 * Hardware Architecture: x86_64
 * Operating System: GNU/Linux or Windows or MacOS
 
@@ -38,7 +38,7 @@ MarsGT, for rare cell identification from matched scRNA-seq (snRNA-seq) and scAT
 
 The installation process involves some optional and necessary steps. Here's the detailed breakdown:
 
-1. **Recommended Step:** Create a new environment, you should use python 3.8.0.
+1. **Recommended Step:** Create a new environment, you should use python 3.8.
 
     ```bash
     conda create --name marsgt python=3.8
