@@ -11,7 +11,7 @@ MarsGT, for rare cell identification from matched scRNA-seq (snRNA-seq) and scAT
 
 ### System Requirements
 
-* Python Version >=3.8.0
+* Python Version >=3.8
 * Hardware Architecture: x86_64
 * Operating System: GNU/Linux or Windows or MacOS
 
