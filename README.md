@@ -2,7 +2,8 @@
 
 ## Description
 
-MarsGT, for rare cell identification from matched scRNA-seq (snRNA-seq) and scATAC-seq (snATAC-seq),includes genes, enhancers, and cells in a heterogeneous graph to simultaneously identify major cell clusters and rare cell clusters based on eRegulon.
+MarsGT: Multi-omics analysis for rare population inference using single-cell Graph Transformer, which is an end-to-end deep learning model for rare cell population identification from scMulti-omics data.
+
 <p align="center">
   <img src="./images/MarsGT%20Flowchart%203.svg" alt="MarsGT Flowchart" width="900">
 </p>
