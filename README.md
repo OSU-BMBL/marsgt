@@ -118,7 +118,7 @@ The installation process involves some optional and necessary steps. Here's the 
 ## MarsGT Model Tutorial
 
 We have curated tutorials to assist you in operating the MarsGT model. You can locate these tutorials in the marsgt/Tutorial directory of the project. Additionally, we have provided an Example Dataset to aid you in testing and acquainting yourself with the MarsGT functionality:  
-**Note-1: The execution of this code approximately takes 2 hours and requires about 90GB of memory.**      
+**Note-1: The execution of this code approximately takes 2 hours and requires about 250GB of memory.**      
 **Note-2: More epochs will lead to better performance, but will also require a longer duration. Please balance this according to your needs to set parameters 'epochs' and 'num_eopchs'.**     
 &nbsp;&nbsp;&nbsp;&nbsp;[**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb)   
  
