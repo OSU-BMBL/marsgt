@@ -4,34 +4,33 @@ library(clusterProfiler)
 library(enrichplot)
 library(ggplot2)
 inputFolder = '/fs/ess/PCON0022/DMT/GSE201402/BC_Pathway/GSEA_Cluster10/'
-df = read.table(paste(inputFolder,"gene_score.txt",sep=''),col.names=c('SYMBOL','logFC')) #读入txt
+df = read.table(paste(inputFolder,"gene_score.txt",sep=''),col.names=c('SYMBOL','logFC')) # Read in txt
 
-df_id<-bitr(df$SYMBOL, #转换的列是df数据框中的SYMBOL列
-            fromType = "SYMBOL",#需要转换ID类型
-            toType = "ENTREZID",#转换成的ID类型
-            OrgDb = "org.Mm.eg.db")#对应的物种，小鼠的是org.Mm.eg.db
+df_id<-bitr(df$SYMBOL, # The column to be converted is the SYMBOL column of df dataframe
+            fromType = "SYMBOL", # ID type to be converted
+            toType = "ENTREZID", # ID type to convert to
+            OrgDb = "org.Mm.eg.db") # Corresponding species, mouse is org.Mm.eg.db
 
-df_all<-merge(df,df_id,by="SYMBOL",all=F)#使用merge合并
-# df_all <- df_all[1:3000,]
-head(df_all) #再看看数据
-dim(df_all) #因为有一部分没转换成功，所以数量就少了。
+df_all<-merge(df,df_id,by="SYMBOL",all=F) # Merge using merge
+head(df_all) # Check the data again
+dim(df_all) # There are some that didn't convert successfully, so the count is reduced.
 
-df_all_sort <- df_all[order(df_all$logFC, decreasing = T),]#先按照logFC降序排序
-gene_fc = df_all_sort$logFC #把foldchange按照从大到小提取出来
+df_all_sort <- df_all[order(df_all$logFC, decreasing = T),] # Sort by logFC in descending order
+gene_fc = df_all_sort$logFC # Extract foldchange from largest to smallest
 head(gene_fc)
-names(gene_fc) <- df_all_sort$ENTREZID #给上面提取的foldchange加上对应上ENTREZID
+names(gene_fc) <- df_all_sort$ENTREZID # Add corresponding ENTREZID to the extracted foldchange
 head(gene_fc)
 
 GO <- gseGO(
-  gene_fc, #gene_fc
-  ont = "ALL",# "BP"、"MF"和"CC"或"ALL"
-  OrgDb = org.Mm.eg.db,#小鼠注释基因
+  gene_fc, 
+  ont = "ALL",# "BP", "MF", "CC" or "ALL"
+  OrgDb = org.Mm.eg.db, # Mouse annotation gene
   keyType = "ENTREZID",
   pvalueCutoff = 0.05,
-  pAdjustMethod = "BH",#p值校正方法
+  pAdjustMethod = "BH", # p-value adjustment method
 )
 
-sortGO<-GO[order(GO$enrichmentScore, decreasing = T),]#按照enrichment score从高到低排序
+sortGO<-GO[order(GO$enrichmentScore, decreasing = T),] # Sort by enrichment score from high to low
 head(sortGO)
 dim(sortGO)
 
