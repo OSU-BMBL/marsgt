@@ -121,11 +121,10 @@ We have curated tutorials to assist you in operating the MarsGT model. You can l
 
 &nbsp;&nbsp;&nbsp;&nbsp;[**Example Dataset** ↗](https://github.com/mtduan/marsgt/blob/main/Tutorial/Tutorial_for_example_data.ipynb)  
 
-**Note-1: The execution of this code approximately takes 2 hours and requires about 250GB of memory.**  
-**Note-2: More epochs will lead to better performance, but will also require a longer duration. Please balance this according to your needs to set parameters 'epochs' and 'num_epochs'.**  
-**Note-3: For the usage of MAESTRO in this context, please refer to the process in `Tutorial/Tutorial_server_version/Case1/MAESTRO_Gene_Peak_Calculation.R`.**
+**Note-1:** The execution of this code approximately takes 2 hours and requires about 250GB of memory.  
+**Note-2:** More epochs will lead to better performance, but will also require a longer duration. Please balance this according to your needs to set parameters 'epochs' and 'num_epochs'.  
+**Note-3:** For the usage of MAESTRO in this context, please refer to the process in `Tutorial/Tutorial_server_version/Case1/MAESTRO_Gene_Peak_Calculation.R`.
 
- 
 Beyond the aforementioned resources, we offer two versions of the tutorial designed to reproduce the results of the paper:
 
 1. [**Local Version** ↗](https://github.com/mtduan/marsgt/tree/main/Tutorial/Tutorial_local_version): This version is specifically created for running the model locally on your computer. Utilize this version if you are aiming to reproduce the results documented in the paper.
