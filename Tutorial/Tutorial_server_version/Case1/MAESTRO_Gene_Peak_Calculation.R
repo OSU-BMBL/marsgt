@@ -2,7 +2,7 @@ library(reticulate)
 library(Matrix)
 library(MAESTRO)
 
-# Load RDS files
+# Load RDS files -- https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE201402
 retina_atac <- readRDS('GSM6062731_retina_10x.atac.RDS')
 multiomics_data <- readRDS('GSM6062732_multiomics_mouse_wt_GeneExpression_Peaks_lists.RDS')
 retina_rna <- readRDS('GSM6062732_retina_10x.rna.RDS')
