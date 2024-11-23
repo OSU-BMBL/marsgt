@@ -117,9 +117,7 @@ The installation process involves some optional and necessary steps. Here's the 
 
 ### TF Binding Sites Data
 
-We retrieved the genome browser track file from JASPAR, which stores all known TF binding sites for each TF. A p-value score was provided in JASPAR.
-
-### Download Links
+We retrieved the genome browser track file from JASPAR, which stores all known TF binding sites for each TF. A p-value score was provided in JASPAR. Download Links：
 - **Human (hg38 genome)**: [hg38_lisa_500.qsave](https://zenodo.org/records/14207730/files/hg38_lisa_500.qsave?download=1)
 - **Mouse (mm10 genome)**: [mm10.qsave](https://zenodo.org/records/14207730/files/mm10.qsave?download=1)
 
