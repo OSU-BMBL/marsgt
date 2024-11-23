@@ -115,6 +115,14 @@ The installation process involves some optional and necessary steps. Here's the 
     curl -o B_lymphoma.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/B_lymphoma.zip
     curl -o PBMCs.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/PBMCs.zip
 
+## TF Binding Sites Data
+
+We retrieved the genome browser track file from JASPAR, which stores all known TF binding sites for each TF. A p-value score was provided in JASPAR.
+
+### Download Links
+- **Human (hg38 genome)**: [hg38_lisa_500.qsave](https://zenodo.org/records/14207730/files/hg38_lisa_500.qsave?download=1)
+- **Mouse (mm10 genome)**: [mm10.qsave](https://zenodo.org/records/14207730/files/mm10.qsave?download=1)
+
 ## MarsGT Model Tutorial
 
 We have curated tutorials to assist you in operating the MarsGT model. You can locate these tutorials in the marsgt/Tutorial directory of the project. Additionally, we have provided an Example Dataset to aid you in testing and acquainting yourself with the MarsGT functionality: 
