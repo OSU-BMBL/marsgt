@@ -115,7 +115,7 @@ The installation process involves some optional and necessary steps. Here's the 
     curl -o B_lymphoma.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/B_lymphoma.zip
     curl -o PBMCs.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/PBMCs.zip
 
-## TF Binding Sites Data
+### TF Binding Sites Data
 
 We retrieved the genome browser track file from JASPAR, which stores all known TF binding sites for each TF. A p-value score was provided in JASPAR.
 
