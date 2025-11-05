@@ -6,10 +6,10 @@
 - [Case3: PBMCs_Dataset (.zip) (2.5 GB)](https://zenodo.org/record/8163160/files/PBMCs.zip?download=1)
 
 ### You also can download them from cmd command：
-    curl -o Tutorial_example.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/Tutorial_example.zip
-    curl -o Mouse_retina.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/Mouse_retina.zip
-    curl -o B_lymphoma.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/B_lymphoma.zip
-    curl -o PBMCs.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/PBMCs.zip
+    curl -o Tutorial_example.zip https://zenodo.org/record/8163160/files/Tutorial_example.zip?download=1
+    curl -o Mouse_retina.zip https://zenodo.org/record/8163160/files/Mouse_retina.zip?download=1
+    curl -o B_lymphoma.zip https://zenodo.org/record/8163160/files/B_lymphoma.zip?download=1
+    curl -o PBMCs.zip https://zenodo.org/record/8163160/files/PBMCs.zip?download=1
 ### Dataset Structure:
 
 #### **Tutorial_example.zip**
