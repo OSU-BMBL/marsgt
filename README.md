@@ -110,10 +110,10 @@ The installation process involves some optional and necessary steps. Here's the 
 - [Case3: PBMCs_Dataset (.zip) (2.5 GB)](https://zenodo.org/record/8163160/files/PBMCs.zip?download=1)
 
 ### You also can download them from cmd command：
-    curl -o Tutorial_example.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/Tutorial_example.zip
-    curl -o Mouse_retina.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/Mouse_retina.zip
-    curl -o B_lymphoma.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/B_lymphoma.zip
-    curl -o PBMCs.zip https://zenodo.org/api/files/7ca78984-0e31-48cf-8b48-9544099d57bb/PBMCs.zip
+    curl -L -o Tutorial_example.zip https://zenodo.org/record/8163160/files/Tutorial_example.zip?download=1
+    curl -L -o Mouse_retina.zip https://zenodo.org/record/8163160/files/Mouse_retina.zip?download=1
+    curl -L -o B_lymphoma.zip https://zenodo.org/record/8163160/files/B_lymphoma.zip?download=1
+    curl -L -o PBMCs.zip https://zenodo.org/record/8163160/files/PBMCs.zip?download=1
 
 ### TF Binding Sites Data
 
