@@ -313,9 +313,9 @@ class MarsGT(nn.Module):
                 gene_peak_cell_cluster = torch.mm(gene_peak_ori.mul(a), cell_emb)
 
                 logp_x3 = F.log_softmax(gene_peak_cluster_pre, dim=-1)
-                p_y3 = F.softmax(gene_peak_cell_cluster, dim=-1)
+                logp_y3 = F.log_softmax(gene_peak_cell_cluster, dim=-1)
 
-                loss_net = F.kl_div(logp_x3, p_y3, reduction='mean')
+                loss_net = F.kl_div(logp_x3, logp_y3, reduction='mean', log_target=True)
 
                 loss = loss_net + loss_cluster + loss_kl  # - lll2
                 # loss = loss_cluster  + loss_kl - lll + loss_net  #+ loss_S_R#+ loss_net
