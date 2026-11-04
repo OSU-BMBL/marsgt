@@ -148,7 +148,7 @@ class NodeDimensionReduction(nn.Module):
                     np.ones(np.nonzero(gene_cell_sub)[1].shape[0])) + list(
                     2 * np.ones(np.nonzero(peak_cell_sub)[0].shape[0])) + list(
                     3 * np.ones(np.nonzero(peak_cell_sub)[1].shape[0])))).to(self.device)
-                l = torch.LongTensor(np.array(self.ini_p1)[[cell_index]]).to(self.device)
+                l = torch.LongTensor(np.array(self.ini_p1)[cell_index]).to(self.device)
                 node_rep = self.gnn.forward(node_feature, node_type,
                                             edge_index,
                                             edge_type).to(self.device)
@@ -248,10 +248,10 @@ class MarsGT(nn.Module):
                     3 * np.ones(np.nonzero(peak_cell_sub)[1].shape[0])))).to(self.device)
 
                 # edge_type = torch.LongTensor(np.array(list(np.zeros(gene_cell_edge_index.shape[1]))+list(np.ones(peak_cell_edge_index.shape[1]) ))).to(device)
-                l = torch.LongTensor(np.array(ini_p1)[[cell_index]]).to(self.device)
-                # l2 = torch.LongTensor(label[[cell_index]])
+                l = torch.LongTensor(np.array(ini_p1)[cell_index]).to(self.device)
+                # l2 = torch.LongTensor(label[cell_index])
 
-                # l = torch.LongTensor(ini_p1)[[cell_index]].to(device)
+                # l = torch.LongTensor(ini_p1)[cell_index].to(device)
 
                 node_rep = self.gnn.forward(node_feature, node_type,
                                             edge_index,
