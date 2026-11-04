@@ -145,7 +145,7 @@ def egrn_calculate(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_nam
             gene_peak_score = gene_peak_score.drop_duplicates(['gene','peak'])
             gene_peak_score = gene_peak_score.sort_values(by="score",ascending=False)
             gene_peak_score['class'] = i
-            egrn_df = egrn_df.append(gene_peak_score)
+            egrn_df = pd.concat([egrn_df, gene_peak_score])
     
     except:
         try:
@@ -156,7 +156,7 @@ def egrn_calculate(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_nam
                 Total_gene_peak_score_df,Total_gene_peak_score = small_gene_Peak_Score(pred_label,RNA_matrix,ATAC_matrix,RP_matrix,gene_names,peak_names,choice_cluser=i)
                 Total_gene_peak_score_df = Total_gene_peak_score_df[Total_gene_peak_score_df['score'] > threshold]
                 Total_gene_peak_score_df['class'] = Total_name[i]
-                egrn_df = egrn_df.append(Total_gene_peak_score_df.sort_values(by="score",ascending=False))
+                egrn_df = pd.concat([egrn_df, Total_gene_peak_score_df.sort_values(by="score",ascending=False)])
         except:
             print('You are encountering memory shortage issues, please follow the tutorial instructions to address it.')
             egrn_df = pd.DataFrame(columns=['gene', 'peak', 'score', 'class'])
