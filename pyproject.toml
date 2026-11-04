@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MarsGT"
+version = "0.2.1.post1"
+description = "MarsGT: rare population inference from scMulti-omics with a single-cell graph transformer (fork with modern-dependency and stage-2 NaN fixes)"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.2",
+    "torch_geometric>=2.4",
+    "torchmetrics>=1.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "pandas>=2.0,<3",
+    "anndata>=0.10",
+    "scanpy>=1.9",
+    "scikit-learn>=1.2",
+    "leidenalg",
+    "igraph",
+    "tqdm",
+    "matplotlib",
+    "seaborn",
+    "dill",
+]
+
+[project.urls]
+Upstream = "https://github.com/OSU-BMBL/marsgt"
+
+[tool.setuptools]
+packages = ["MarsGT"]

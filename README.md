@@ -1,5 +1,13 @@
 <h1 align="center">MarsGT: Multi-omics data analysis for rare population inference using single-cell graph transformer</h1>
 
+> **Fork note (branch `modern-deps`).** This fork runs on current Python/PyTorch (tested: Python 3.13, torch 2.11 + CUDA 13, torch_geometric 2.8, pandas 2.2, anndata 0.13) and fixes the stage-2 NaN embeddings reported in OSU-BMBL/marsgt#1, #3, #4. Install with:
+>
+> ```bash
+> pip install "git+https://github.com/guarelin/marsgt.git@modern-deps"
+> ```
+>
+> Changes (one commit each): NumPy ≥1.23 label indexing; AnnData `dtype=` removal; `torch.sparse_coo_tensor`; `ReduceLROnPlateau(verbose=)` removal; `DataFrame.append` → `pd.concat` (previously made eGRN silently return empty); stage-2 KL computed with `log_target=True` (the NaN fix). `pyproject.toml` declares version ranges; the pinned `requirements.txt` below is the original upstream environment. The PyG extensions (`torch-sparse`, `torch-scatter`) are not imported by MarsGT and are not needed.
+
 ## Description
 
 MarsGT: Multi-omics analysis for rare population inference using single-cell Graph Transformer, which is an end-to-end deep learning model for rare cell population identification from scMulti-omics data.
