@@ -106,7 +106,7 @@ class NodeDimensionReduction(nn.Module):
 
         self.optimizer = torch.optim.AdamW(self.gnn.parameters(), lr=self.lr, weight_decay=self.wd)
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', factor=0.5, patience=5,
-                                                                    verbose=True)
+                                                                    )
 
     def train_model(self, n_batch):
         print('The training process for the NodeDimensionReduction model has started. Please wait.')
