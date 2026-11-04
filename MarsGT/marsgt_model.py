@@ -304,7 +304,7 @@ class MarsGT(nn.Module):
                 row_ind = torch.Tensor(list(gene_peak_1.tocoo().row) * len(cell_index))
                 col_ind = torch.Tensor([v for v in range(len(cell_index)) for i in range(len(gene_peak_1.tocoo().row))])
                 data = torch.Tensor(list(gene_peak_1.tocoo().data) * len(cell_index))
-                a = torch.sparse.FloatTensor(torch.vstack((row_ind, col_ind)).long(), data,
+                a = torch.sparse_coo_tensor(torch.vstack((row_ind, col_ind)).long(), data,
                                              (gene_peak_1.shape[0], len(cell_index))).to(self.device)
                 gene_peak_cell = gene_peak_ori.mul(a)
                 # the original in cell level (peak * gene * peak_gene)

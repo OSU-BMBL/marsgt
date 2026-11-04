@@ -37,7 +37,7 @@ def peak_Sparse(peak_feature, gene_feature, device):
         non_count += peak_sum * gene_feature.shape[0]
 
     # Create the final sparse peak_feature tensor
-    peak_feature_ori = torch.sparse.FloatTensor(torch.vstack((peak_combine_row, peak_combine_col)).long(), peak_combine_data, torch.Size((gene_feature.shape[0] * peak_feature.shape[0], peak_feature.shape[1])))
+    peak_feature_ori = torch.sparse_coo_tensor(torch.vstack((peak_combine_row, peak_combine_col)).long(), peak_combine_data, torch.Size((gene_feature.shape[0] * peak_feature.shape[0], peak_feature.shape[1])))
     return peak_feature_ori.to(device)
 
 
@@ -58,7 +58,7 @@ def gene_Sparse(peak_feature, gene_feature, device):
     gene_combine_data = gene_data.repeat(peak_feature.shape[0])
 
     # Create the final sparse gene_feature tensor
-    gene_feature_ori = torch.sparse.FloatTensor(torch.vstack((gene_combine_row, gene_combine_col)), gene_combine_data, torch.Size((gene_feature.shape[0] * peak_feature.shape[0], gene_feature.shape[1])))
+    gene_feature_ori = torch.sparse_coo_tensor(torch.vstack((gene_combine_row, gene_combine_col)), gene_combine_data, torch.Size((gene_feature.shape[0] * peak_feature.shape[0], gene_feature.shape[1])))
     return gene_feature_ori.to(device)
 
 
