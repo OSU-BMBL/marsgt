@@ -63,7 +63,7 @@ def gene_Sparse(peak_feature, gene_feature, device):
 
 
 def gene_Peak_Score(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_names):
-    y = ad.AnnData(RNA_matrix.transpose(), dtype='int32')
+    y = ad.AnnData(RNA_matrix.transpose().astype('float32'))
     y.var_names=gene_names[0]
     y.obs['pred'] = np.array(pred_label,dtype='int64')
     y.obs['pred'] = y.obs['pred'].astype("category")
@@ -91,7 +91,7 @@ def gene_Peak_Score(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_na
 
 
 def small_gene_Peak_Score(pred_label,RNA_matrix,ATAC_matrix,RP_matrix,gene_names,peak_names,choice_cluser):  
-    y = ad.AnnData(RNA_matrix.transpose(), dtype='int32')
+    y = ad.AnnData(RNA_matrix.transpose().astype('float32'))
     y.var_names=gene_names[0]
     y.obs['pred'] = np.array(pred_label,dtype='int64')
     cell_emb_binary = sp.coo_matrix((np.ones(len(y.obs['pred'])),(np.array(range(len(y.obs['pred']))),list(y.obs['pred']))))

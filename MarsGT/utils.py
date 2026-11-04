@@ -120,7 +120,7 @@ def initial_clustering(RNA_matrix, custom_n_neighbors=None, n_pcs=40, custom_res
         else:
             return 0.8, 15
 
-    adata = ad.AnnData(RNA_matrix.transpose(), dtype='int32')
+    adata = ad.AnnData(RNA_matrix.transpose().astype('float32'))
 
     # If the user did not provide a custom resolution or n_neighbors value, use the values calculated by segment_function
     if custom_resolution is None or custom_n_neighbors is None:
