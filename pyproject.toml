@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MarsGT"
-version = "0.2.1.post1"
+version = "0.2.1.post2"
 description = "MarsGT: rare population inference from scMulti-omics with a single-cell graph transformer (fork with modern-dependency and stage-2 NaN fixes)"
 readme = "README.md"
 license = { text = "MIT" }
