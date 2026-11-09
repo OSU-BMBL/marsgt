@@ -115,12 +115,10 @@ class NodeDimensionReduction(nn.Module):
                 gene_index = self.indices[batch_id]['gene_index']
                 cell_index = self.indices[batch_id]['cell_index']
                 peak_index = self.indices[batch_id]['peak_index']
-                gene_feature = self.RNA_matrix[list(gene_index),]
                 cell_feature = self.RNA_matrix[:, list(cell_index)].T
-                peak_feature = self.ATAC_matrix[list(peak_index),]
-                gene_feature = torch.tensor(np.array(gene_feature.todense()), dtype=torch.float32).to(self.device)
+                gene_feature = dense_rows(self.RNA_matrix, gene_index, self.device)
                 cell_feature = torch.tensor(np.array(cell_feature.todense()), dtype=torch.float32).to(self.device)
-                peak_feature = torch.tensor(np.array(peak_feature.todense()), dtype=torch.float32).to(self.device)
+                peak_feature = dense_rows(self.ATAC_matrix, peak_index, self.device)
 
                 node_feature = [cell_feature, gene_feature, peak_feature]
                 gene_cell_sub = self.RNA_matrix[list(gene_index),][:, list(cell_index)]
@@ -216,12 +214,10 @@ class MarsGT(nn.Module):
                 gene_index = indices[batch_id]['gene_index']
                 cell_index = indices[batch_id]['cell_index']
                 peak_index = indices[batch_id]['peak_index']
-                gene_feature = RNA_matrix[list(gene_index),]
                 cell_feature = RNA_matrix[:, list(cell_index)].T
-                peak_feature = ATAC_matrix[list(peak_index),]
-                gene_feature = torch.tensor(np.array(gene_feature.todense()), dtype=torch.float32).to(self.device)
+                gene_feature = dense_rows(RNA_matrix, gene_index, self.device)
                 cell_feature = torch.tensor(np.array(cell_feature.todense()), dtype=torch.float32).to(self.device)
-                peak_feature = torch.tensor(np.array(peak_feature.todense()), dtype=torch.float32).to(self.device)
+                peak_feature = dense_rows(ATAC_matrix, peak_index, self.device)
                 node_feature = [cell_feature, gene_feature, peak_feature]
                 gene_cell_sub = RNA_matrix[list(gene_index),][:, list(cell_index)]
                 peak_cell_sub = ATAC_matrix[list(peak_index),][:, list(cell_index)]
@@ -345,12 +341,10 @@ def MarsGT_pred(RNA_matrix, ATAC_matrix, RP_matrix, egrn, MarsGT_gnn, indices, n
             gene_index = indices[batch_id]['gene_index']
             cell_index = indices[batch_id]['cell_index']
             peak_index = indices[batch_id]['peak_index']
-            gene_feature = RNA_matrix[list(gene_index),]
             cell_feature = RNA_matrix[:, list(cell_index)].T
-            peak_feature = ATAC_matrix[list(peak_index),]
-            gene_feature = torch.tensor(np.array(gene_feature.todense()), dtype=torch.float32).to(device)
+            gene_feature = dense_rows(RNA_matrix, gene_index, device)
             cell_feature = torch.tensor(np.array(cell_feature.todense()), dtype=torch.float32).to(device)
-            peak_feature = torch.tensor(np.array(peak_feature.todense()), dtype=torch.float32).to(device)
+            peak_feature = dense_rows(ATAC_matrix, peak_index, device)
             node_feature = [cell_feature, gene_feature, peak_feature]
             gene_cell_sub = RNA_matrix[list(gene_index),][:, list(cell_index)]
             peak_cell_sub = ATAC_matrix[list(peak_index),][:, list(cell_index)]

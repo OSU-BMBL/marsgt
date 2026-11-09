@@ -36,6 +36,80 @@ def subgraph(graph, seed, n_neighbors, node_sele_prob):
     return indices
 
 
+# ---------------------------------------------------------------------------------------------------------------
+# Device-side feature rows.
+# Every batch needs dense rows of RNA_matrix / ATAC_matrix (features x ALL cells). The original code densified them
+# on the CPU and copied ~0.8 GB per batch to the GPU at full dataset width. Instead, keep one sparse (CSR) copy of
+# each matrix on the device and densify the selected rows there. Values are identical (float32 counts).
+#   GPU_FEATURES = 'auto' -> use the device cache when the device is CUDA (default)
+#                  True   -> always (also on CPU; mainly for testing)
+#                  False  -> original CPU path
+# ---------------------------------------------------------------------------------------------------------------
+GPU_FEATURES = 'auto'
+_ROW_CACHE = {}
+
+
+class DeviceRows:
+    """Sparse CSR copy of a (features x cells) scipy matrix on `device`; .rows(idx) returns dense float32 rows."""
+
+    def __init__(self, M, device):
+        import scipy.sparse as _sp
+        # The original M[idx,].todense() is column-major (Fortran order) when M is CSC. Matmul rounding depends on
+        # memory layout, so return the same layout to reproduce the original arithmetic exactly.
+        self.fortran = getattr(M, 'format', None) == 'csc'
+        M = _sp.csr_matrix(M, dtype=np.float32, copy=True)
+        M.sum_duplicates(); M.sort_indices()
+        self.shape, self.device = M.shape, device
+        self.indptr = torch.as_tensor(M.indptr.astype(np.int64), device=device)
+        self.indices = torch.as_tensor(M.indices.astype(np.int32), device=device)
+        self.data = torch.as_tensor(M.data, device=device)
+
+    def rows(self, idx):
+        idx = torch.as_tensor(np.asarray(list(idx), dtype=np.int64), device=self.device)
+        if self.fortran:   # (n, C) view with strides (1, n): same layout as the original, no extra memory
+            out = torch.zeros((self.shape[1], idx.numel()), dtype=torch.float32, device=self.device).t()
+        else:
+            out = torch.zeros((idx.numel(), self.shape[1]), dtype=torch.float32, device=self.device)
+        start = self.indptr[idx]
+        cnt = self.indptr[idx + 1] - start
+        total = int(cnt.sum())
+        if total == 0:
+            return out
+        row = torch.repeat_interleave(torch.arange(idx.numel(), device=self.device), cnt)
+        first = torch.repeat_interleave(torch.cumsum(cnt, 0) - cnt, cnt)
+        pos = torch.repeat_interleave(start, cnt) + (torch.arange(total, device=self.device) - first)
+        out[row, self.indices[pos].long()] = self.data[pos]
+        return out
+
+    def nbytes(self):
+        return sum(t.numel() * t.element_size() for t in (self.indptr, self.indices, self.data))
+
+
+def _use_device_rows(device):
+    if GPU_FEATURES == 'auto':
+        return torch.device(device).type == 'cuda'
+    return bool(GPU_FEATURES)
+
+
+def dense_rows(M, idx, device):
+    """Dense float32 tensor of rows `idx` of scipy matrix M, on `device`. Same values as the original
+    torch.tensor(np.array(M[list(idx),].todense()), dtype=torch.float32).to(device)."""
+    if not _use_device_rows(device):
+        return torch.tensor(np.array(M[list(idx), ].todense()), dtype=torch.float32).to(device)
+    key = (id(M), str(device))
+    hit = _ROW_CACHE.get(key)
+    if hit is None or hit[0] is not M or hit[1] != (M.shape, M.nnz):
+        hit = _ROW_CACHE[key] = (M, (M.shape, M.nnz), DeviceRows(M, device))
+    return hit[2].rows(idx)
+
+
+def clear_feature_cache():
+    """Free the device copies of RNA/ATAC matrices (e.g. between datasets)."""
+    _ROW_CACHE.clear()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
 SAMPLING_MODES = ('upstream', 'aligned', 'paper')
 
 

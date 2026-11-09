@@ -9,6 +9,8 @@
 > Changes (one commit each): NumPy ≥1.23 label indexing; AnnData `dtype=` removal; `torch.sparse_coo_tensor`; `ReduceLROnPlateau(verbose=)` removal; `DataFrame.append` → `pd.concat` (previously made eGRN silently return empty); stage-2 KL computed with `log_target=True` (the NaN fix). `pyproject.toml` declares version ranges; the pinned `requirements.txt` below is the original upstream environment. The PyG extensions (`torch-sparse`, `torch-scatter`) are not imported by MarsGT and are not needed.
 >
 > **Sub-sampling modes** (`batch_select_whole(..., sampling=...)`): `'upstream'` (default) is the original code, unchanged. Its per-feature probabilities are misaligned with the features, because `list(set(...))` reorders them after the probabilities are computed, so the weights are effectively shuffled. `'aligned'` is the same weighting with that bug fixed. `'paper'` implements the specificity-based scheme of the MarsGT paper (Song et al. 2024, *Nat Commun* 15:338, eqs. 2-5): keep genes above the cell's first-quartile count, then sample with probability proportional to the share of each feature's total counts found in the cell. See `tests/test_sampling.py`.
+>
+> **Batch features built on the GPU** (0.2.1.post3): each batch's dense gene and peak inputs (rows of `RNA_matrix`/`ATAC_matrix` across *all* cells) are built on the GPU from one resident sparse copy of each matrix, so the original per-batch CPU densification and copy are gone. Values, memory layout and therefore training are identical (`tests/test_device_rows.py`). The resident copy costs about 1-3 GB of GPU memory at 180k cells. Turn it off with `MarsGT.utils.GPU_FEATURES = False`, and free it with `MarsGT.utils.clear_feature_cache()`.
 
 ## Description
 
