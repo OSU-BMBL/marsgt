@@ -110,7 +110,10 @@ class NodeDimensionReduction(nn.Module):
 
     def train_model(self, n_batch):
         print('The training process for the NodeDimensionReduction model has started. Please wait.')
+        if not hasattr(self, 'history'):
+            self.history = []
         for epoch in tqdm(range(self.epochs)):
+            ep = {'loss': 0.0, 'loss_cluster': 0.0, 'cos_sim': 0.0}
             for batch_id in np.arange(n_batch):
                 gene_index = self.indices[batch_id]['gene_index']
                 cell_index = self.indices[batch_id]['cell_index']
@@ -181,6 +184,9 @@ class NodeDimensionReduction(nn.Module):
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+                ep['loss'] += float(loss.detach()); ep['loss_cluster'] += float(loss_cluster.detach())
+                ep['cos_sim'] += float(torch.as_tensor(lll).detach())
+            self.history.append({k: v / max(n_batch, 1) for k, v in ep.items()})
         print('The training for the NodeDimensionReduction model has been completed.')
         return self.gnn, cell_emb, gene_emb, peak_emb, h
 
@@ -208,8 +214,11 @@ class MarsGT(nn.Module):
         sim_l = list()
         nmi_l = list()
         ini_p1 = np.array(ini_p1)
+        if not hasattr(self, 'history'):
+            self.history = []
 
         for epoch in range(self.num_epochs):
+            ep = {'loss': 0.0, 'loss_net': 0.0, 'loss_cluster': 0.0, 'loss_kl': 0.0}
             for batch_id in tqdm(np.arange(self.n_batch)):
                 gene_index = indices[batch_id]['gene_index']
                 cell_index = indices[batch_id]['cell_index']
@@ -320,6 +329,9 @@ class MarsGT(nn.Module):
                 loss.backward()
                 self.gnn_optimizer.step()
                 self.net_optimizer.step()
+                for k_, v_ in (('loss', loss), ('loss_net', loss_net), ('loss_cluster', loss_cluster), ('loss_kl', loss_kl)):
+                    ep[k_] += float(v_.detach())
+            self.history.append({k: v / max(self.n_batch, 1) for k, v in ep.items()})
         return self.gnn
 
     def train_model(self, indices, RNA_matrix, ATAC_matrix, Gene_Peak, ini_p1):
@@ -331,7 +343,14 @@ class MarsGT(nn.Module):
 
 
 def MarsGT_pred(RNA_matrix, ATAC_matrix, RP_matrix, egrn, MarsGT_gnn, indices, nodes_id, cell_size, device, gene_names,
-                peak_names):
+                peak_names, eval_mode=True):
+    """eval_mode=True (default in this fork): predict with dropout OFF, so the same trained model always gives the
+    same labels. The released code predicted in training mode (dropout 0.3 active), which made repeated predictions
+    of one model disagree (ARI ~0.3 in tests). eval_mode=False reproduces the original behaviour. The model's
+    train/eval mode is restored afterwards."""
+    was_training = MarsGT_gnn.training
+    if eval_mode:
+        MarsGT_gnn.eval()
     n_batch = math.ceil(nodes_id.shape[0] / cell_size)
     embedding = []
     l_pre = []
@@ -382,7 +401,9 @@ def MarsGT_pred(RNA_matrix, ATAC_matrix, RP_matrix, egrn, MarsGT_gnn, indices, n
     if egrn:
         final_egrn_df = egrn_calculate(cell_clu, nodes_id, RNA_matrix, ATAC_matrix, RP_matrix, gene_names, peak_names)
         MarsGT_result = {'pred_label': cell_clu, 'cell_embedding': cell_embedding, 'egrn': final_egrn_df}
+        MarsGT_gnn.train(was_training)
         return MarsGT_result
     else:
         MarsGT_result = {'pred_label': cell_clu, 'cell_embedding': cell_embedding}
+        MarsGT_gnn.train(was_training)
         return MarsGT_result

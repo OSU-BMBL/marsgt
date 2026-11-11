@@ -11,6 +11,11 @@
 > **Sub-sampling modes** (`batch_select_whole(..., sampling=...)`): `'upstream'` (default) is the original code, unchanged. Its per-feature probabilities are misaligned with the features, because `list(set(...))` reorders them after the probabilities are computed, so the weights are effectively shuffled. `'aligned'` is the same weighting with that bug fixed. `'paper'` implements the specificity-based scheme of the MarsGT paper (Song et al. 2024, *Nat Commun* 15:338, eqs. 2-5): keep genes above the cell's first-quartile count, then sample with probability proportional to the share of each feature's total counts found in the cell. See `tests/test_sampling.py`.
 >
 > **Batch features built on the GPU** (0.2.1.post3): each batch's dense gene and peak inputs (rows of `RNA_matrix`/`ATAC_matrix` across *all* cells) are built on the GPU from one resident sparse copy of each matrix, so the original per-batch CPU densification and copy are gone. Values, memory layout and therefore training are identical (`tests/test_device_rows.py`). The resident copy costs about 1-3 GB of GPU memory at 180k cells. Turn it off with `MarsGT.utils.GPU_FEATURES = False`, and free it with `MarsGT.utils.clear_feature_cache()`.
+>
+> **Prediction with dropout off, and per-epoch loss history** (0.2.1.post4):
+> - The released `MarsGT_pred` predicted with dropout (0.3) still active, so repeated predictions of the same trained model disagreed: ARI about 0.3, with about 40% of cells changing cluster. It now predicts in eval mode by default; `eval_mode=False` restores the original behavior.
+> - Both training stages record mean losses per epoch in `.history`.
+> - Training one epoch at a time on the same objects is bitwise-identical to one multi-epoch call, so wrappers can add early stopping without changing the math (`tests/test_training_controls.py`).
 
 ## Description
 
