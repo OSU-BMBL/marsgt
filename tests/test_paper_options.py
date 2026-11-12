@@ -86,6 +86,41 @@ def test_cosine_loss():
     assert not all(torch.equal(a, b) for a, b in zip(out[False][0], out[True][0])), 'cosine term had no effect'
 
 
+
+def test_cluster_cosine_reduce_and_self_pairs():
+    """Hand-computed cases for cluster_cosine (stage-1 and stage-2 cosine term)."""
+    torch.manual_seed(0)
+    u = torch.tensor([1.0, 0.0]); v = torch.tensor([0.6, 0.8])           # cos(u, v) = 0.6
+    w = torch.tensor([0.0, 1.0]); z = torch.tensor([0.0, 2.0])           # cos(w, z) = 1.0
+    emb = torch.stack([u, v, w, z, u])                                    # clusters: {0,1}, {2,3}, {4} (singleton)
+    lab = torch.tensor([0, 0, 1, 1, 2])
+    c_with = {0: (1 + 1 + 0.6 + 0.6) / 4, 1: 1.0, 2: 1.0}                 # self-pairs included (released)
+    c_wo = {0: 0.6, 1: 1.0}                                               # self-pairs excluded; singleton skipped
+    val, _ = mm.cluster_cosine(emb, lab);                       assert np.isclose(float(val), sum(c_with.values()))
+    val, _ = mm.cluster_cosine(emb, lab, reduce='mean');        assert np.isclose(float(val), np.mean(list(c_with.values())))
+    val, _ = mm.cluster_cosine(emb, lab, self_pairs=False);     assert np.isclose(float(val), sum(c_wo.values()))
+    val, _ = mm.cluster_cosine(emb, lab, 'mean', False);        assert np.isclose(float(val), np.mean(list(c_wo.values())))
+    # 'mean' is bounded in [-1, 1] however many clusters the batch has
+    big = torch.randn(300, 16); labs = torch.randint(0, 40, (300,))
+    s_val, _ = mm.cluster_cosine(big, labs); m_val, _ = mm.cluster_cosine(big, labs, 'mean', False)
+    assert -1 <= float(m_val) <= 1 and abs(float(s_val)) > abs(float(m_val))
+    # gradients flow
+    e = emb.clone().requires_grad_(True); mm.cluster_cosine(e, lab, 'mean', False)[0].backward(); assert e.grad is not None
+
+
+def test_cosine_options_train():
+    torch.set_num_threads(1)
+    D = _data(); R, A, GP, ini, idx, nodes, names = D
+    torch.manual_seed(0); np.random.seed(0)
+    nd = mm.NodeDimensionReduction(R, A, idx, ini, wd=0.1, epochs=1, cosine_reduce='mean', cosine_self_pairs=False, **KW)
+    gnn, _, _, _, h = nd.train_model(n_batch=len(idx))
+    m = mm.MarsGT(gnn=gnn, h=h, labsm=0.1, n_hid=32, n_batch=len(idx), device=DEV, lr=5e-4, wd=0.1,
+                  cosine_loss=True, cosine_reduce='mean', cosine_self_pairs=False)
+    m.train_model(indices=idx, RNA_matrix=R, ATAC_matrix=A, Gene_Peak=GP, ini_p1=ini)
+    per_batch = m.history[-1]['cos_sim']
+    assert np.isfinite(per_batch) and -1 <= per_batch <= 1, per_batch
+    assert -1 <= nd.history[-1]['cos_sim'] <= 1
+
 if __name__ == '__main__':
     for name, fn in list(globals().items()):
         if name.startswith('test_'):

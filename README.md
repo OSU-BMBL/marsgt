@@ -22,6 +22,8 @@
 > - `MarsGT_pred(..., pred_graph='training')`: prediction uses the same four-relation, both-direction graph as training. The released prediction graph labels peak→cell edges as relation 1, which in training is cell→gene.
 > - `MarsGT(..., cosine_loss=True)`: adds the paper's stage-2 cosine term (eq. 12), computed on the current batch. The released version used a stale stage-1 tensor and was commented out.
 >
+> - `cosine_reduce='mean'` and `cosine_self_pairs=False` (0.2.1.post6; on both `NodeDimensionReduction` and `MarsGT`): average the within-cluster cosine term over clusters, rather than summing it, and drop each cell's similarity with itself. That bounds the term to [−1, 1]. The released sum grows with the number of clusters per batch and outweighed the other losses in our runs. The defaults reproduce the released code exactly.
+>
 > See `tests/test_paper_options.py`.
 
 ## Description

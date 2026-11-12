@@ -64,6 +64,39 @@ class GNN_from_raw(nn.Module):
         return meta_xs
 
 
+def cluster_cosine(cell_emb, labels, reduce='sum', self_pairs=True):
+    """Within-cluster cosine similarity of cell embeddings (the paper's Cos_loss, eq. 13), for one batch.
+
+    For each cluster present in `labels`, the mean cosine similarity over its pairs of cells; then combined across
+    clusters by `reduce`:
+      'sum'  (released code): sum over clusters, so the term grows with the number of clusters in the batch;
+      'mean': average over clusters, bounded in [-1, 1] and comparable in scale to the other loss terms.
+    self_pairs=True (released code) includes each cell paired with itself (similarity exactly 1); False excludes
+    those trivial pairs, so a cluster with a single cell in the batch contributes nothing.
+    Returns (value, embeddings of the last cluster visited); the latter is what stage 1 returns as `h`.
+    The defaults reproduce the released computation exactly (same operations, same order).
+    """
+    if reduce not in ('sum', 'mean'):
+        raise ValueError(f"reduce must be 'sum' or 'mean', got {reduce!r}")
+    g = [int(i) for i in labels]
+    total, n_used, h = 0, 0, None
+    for i in set([int(k) for k in labels]):
+        h = cell_emb[[True if i == j else False for j in g]]
+        n = h.shape[0]
+        if self_pairs:
+            a, b = list(range(n)) * n, [v for v in range(n) for _ in range(n)]
+        else:
+            a = [q for v in range(n) for q in range(n) if q != v]
+            b = [v for v in range(n) for q in range(n) if q != v]
+            if not a:
+                continue
+        total = F.cosine_similarity(h[a,], h[b]).mean() + total
+        n_used += 1
+    if reduce == 'mean' and n_used:
+        total = total / n_used
+    return total, h
+
+
 class Net(nn.Module):
     def __init__(self, dim_in, dim_out):
         super(Net, self).__init__()
@@ -76,8 +109,10 @@ class Net(nn.Module):
 
 class NodeDimensionReduction(nn.Module):
     def __init__(self, RNA_matrix, ATAC_matrix, indices, ini_p1, n_hid, n_heads,
-                 n_layers, labsm, lr, wd, device, num_types=3, num_relations=2, epochs=1):
+                 n_layers, labsm, lr, wd, device, num_types=3, num_relations=2, epochs=1,
+                 cosine_reduce='sum', cosine_self_pairs=True):
         super(NodeDimensionReduction, self).__init__()
+        self.cosine_reduce, self.cosine_self_pairs = cosine_reduce, cosine_self_pairs   # see cluster_cosine()
         self.RNA_matrix = RNA_matrix
         self.ATAC_matrix = ATAC_matrix
         self.indices = indices
@@ -173,13 +208,7 @@ class NodeDimensionReduction(nn.Module):
                 loss_kl2 = F.kl_div(logp_x2, p_y2, reduction='mean')
                 loss_kl = loss_kl1 + loss_kl2
                 loss_cluster = self.LabSm(cell_emb, l)
-                lll = 0
-                g = [int(i) for i in l]
-                for i in set([int(k) for k in l]):
-                    h = cell_emb[[True if i == j else False for j in g]]
-                    ll = F.cosine_similarity(h[list(range(h.shape[0])) * h.shape[0],],
-                                             h[[v for v in range(h.shape[0]) for i in range(h.shape[0])]]).mean()
-                    lll = ll + lll
+                lll, h = cluster_cosine(cell_emb, l, self.cosine_reduce, self.cosine_self_pairs)
                 loss = loss_cluster - lll
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -192,12 +221,14 @@ class NodeDimensionReduction(nn.Module):
 
 
 class MarsGT(nn.Module):
-    def __init__(self, gnn, h, labsm, n_hid, n_batch, device, lr, wd, num_epochs=1, cosine_loss=False):
+    def __init__(self, gnn, h, labsm, n_hid, n_batch, device, lr, wd, num_epochs=1, cosine_loss=False,
+                 cosine_reduce='sum', cosine_self_pairs=True):
         """cosine_loss=True adds the paper's within-cluster cosine term (eq. 12: Loss = KL_cluster - Cos_loss + ...)
         computed on the CURRENT batch's cell embeddings, as stage 1 does. The released code's version (lll2) used a
         stale stage-1 tensor (self.h) and was commented out; default False keeps the released behaviour."""
         super(MarsGT, self).__init__()
         self.cosine_loss = cosine_loss
+        self.cosine_reduce, self.cosine_self_pairs = cosine_reduce, cosine_self_pairs   # see cluster_cosine()
         self.lr = lr
         self.wd = wd
         self.gnn = gnn
@@ -328,12 +359,7 @@ class MarsGT(nn.Module):
 
                 loss = loss_net + loss_cluster + loss_kl  # - lll2
                 if self.cosine_loss:   # paper eq. 12 cosine term, on this batch (mirrors stage 1)
-                    cos_sum = 0
-                    g_ = [int(i) for i in l]
-                    for i in set(g_):
-                        hc = cell_emb[[True if i == j else False for j in g_]]
-                        cos_sum = F.cosine_similarity(hc[list(range(hc.shape[0])) * hc.shape[0],],
-                                                      hc[[v for v in range(hc.shape[0]) for _ in range(hc.shape[0])]]).mean() + cos_sum
+                    cos_sum, _ = cluster_cosine(cell_emb, l, self.cosine_reduce, self.cosine_self_pairs)
                     loss = loss - cos_sum
                     ep['cos_sim'] = ep.get('cos_sim', 0.0) + float(torch.as_tensor(cos_sum).detach())
                 # loss = loss_cluster  + loss_kl - lll + loss_net  #+ loss_S_R#+ loss_net
