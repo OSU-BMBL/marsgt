@@ -16,6 +16,13 @@
 > - The released `MarsGT_pred` predicted with dropout (0.3) still active, so repeated predictions of the same trained model disagreed: ARI about 0.3, with about 40% of cells changing cluster. It now predicts in eval mode by default; `eval_mode=False` restores the original behavior.
 > - Both training stages record mean losses per epoch in `.history`.
 > - Training one epoch at a time on the same objects is bitwise-identical to one multi-epoch call, so wrappers can add early stopping without changing the math (`tests/test_training_controls.py`).
+>
+> **Paper-faithful options** (0.2.1.post5; all off by default, so the released behavior is unchanged):
+> - `NodeDimensionReduction(..., num_relations=4)`: all four relations pass messages, including peak↔cell, as the paper describes. The released `num_relations=2` silently drops relations 2 and 3, so ATAC values have no effect on stage 1.
+> - `MarsGT_pred(..., pred_graph='training')`: prediction uses the same four-relation, both-direction graph as training. The released prediction graph labels peak→cell edges as relation 1, which in training is cell→gene.
+> - `MarsGT(..., cosine_loss=True)`: adds the paper's stage-2 cosine term (eq. 12), computed on the current batch. The released version used a stale stage-1 tensor and was commented out.
+>
+> See `tests/test_paper_options.py`.
 
 ## Description
 
