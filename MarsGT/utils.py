@@ -120,7 +120,7 @@ def feature_probs(counts, totals, mode, is_rna, quantile=0.25):
     totals : 1-D array, each of those features' total count across all cells
     mode   : 'aligned' -> upstream weights (RNA: log(x+1) after zeroing x<5; ATAC: log(x+1)) passed
                           through softmax, i.e. proportional to x+1 (or 1), but kept aligned to features
-             'paper'   -> Song et al. 2024 (Nat Commun 15:338) eqs. 2-5:
+             'paper'   -> Wang et al. 2024 (Nat Commun 15:338, doi:10.1038/s41467-023-44570-8) eqs. 2-5:
                           Prop = x_{i,k0} / sum_k x_{i,k}   (share of the feature's total found in this cell)
                           RNA: keep genes with x > a, a = `quantile` of the cell's nonzero counts (falls back
                                to x >= a if that leaves nothing); Prob = Prop / sum(Prop over kept genes)
