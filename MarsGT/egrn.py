@@ -9,61 +9,35 @@ import pandas as pd
 
 
 def peak_Sparse(peak_feature, gene_feature, device):
-    # Find the non-zero elements in peak_feature
-    peak_row = torch.where(peak_feature != 0)[0].to(device)
-    peak_col = torch.where(peak_feature != 0)[1].to(device)
-    peak_data = peak_feature[torch.where(peak_feature != 0)]
-
-    # Initialize tensors for combined peak data
-    peak_combine_row = torch.zeros((peak_row.shape[0] * gene_feature.shape[0]), dtype=torch.int32)
-    peak_combine_col = torch.zeros((peak_row.shape[0] * gene_feature.shape[0]), dtype=torch.int32)
-    peak_combine_data = torch.zeros((peak_row.shape[0] * gene_feature.shape[0]))
-
-    non_count = 0
-    for peak_num in range(peak_feature.shape[0]):
-        # Calculate the peak sum
-        peak_sum = len(peak_row[peak_row == peak_num])
-
-        # Initialize a tensor for peak indices
-        peak_init = torch.zeros((gene_feature.shape[0], peak_sum), dtype=torch.int32).to(device)
-        for id in range(gene_feature.shape[0]):
-            peak_init[id,] = id + peak_num * gene_feature.shape[0]
-
-        # Update the combined peak data tensors
-        peak_combine_row[non_count:non_count + peak_sum * gene_feature.shape[0]] = (peak_row[peak_row == peak_num] + peak_init - peak_num).reshape(1, -1)
-        peak_combine_col[non_count:non_count + peak_sum * gene_feature.shape[0]] = (peak_col[peak_row == peak_num]).repeat(gene_feature.shape[0])
-        peak_combine_data[non_count:non_count + peak_sum * gene_feature.shape[0]] = (peak_data[peak_row == peak_num]).repeat(gene_feature.shape[0])
-
-        non_count += peak_sum * gene_feature.shape[0]
-
-    # Create the final sparse peak_feature tensor
-    peak_feature_ori = torch.sparse.FloatTensor(torch.vstack((peak_combine_row, peak_combine_col)).long(), peak_combine_data, torch.Size((gene_feature.shape[0] * peak_feature.shape[0], peak_feature.shape[1])))
-    return peak_feature_ori.to(device)
+    """Vectorized. For every nonzero (p, c, v) of peak_feature and every gene g, emit (p*G + g, c, v).
+    Shape (G*P, C); identical to the original loop version."""
+    G = gene_feature.shape[0]
+    peak_row, peak_col = torch.nonzero(peak_feature, as_tuple=True)
+    peak_data = peak_feature[peak_row, peak_col]
+    g = torch.arange(G, device=peak_feature.device)
+    rows = (peak_row.unsqueeze(1) * G + g.unsqueeze(0)).reshape(-1)
+    cols = peak_col.unsqueeze(1).expand(-1, G).reshape(-1)
+    vals = peak_data.unsqueeze(1).expand(-1, G).reshape(-1)
+    return torch.sparse_coo_tensor(torch.stack((rows, cols)), vals,
+                                   (G * peak_feature.shape[0], peak_feature.shape[1])).to(device)
 
 
 def gene_Sparse(peak_feature, gene_feature, device):
-    # Find the non-zero elements in gene_feature
-    gene_row = torch.where(gene_feature != 0)[0].to(device)
-    gene_col = torch.where(gene_feature != 0)[1].to(device)
-    gene_data = gene_feature[torch.where(gene_feature != 0)]
-
-    # Initialize a tensor for gene indices
-    gene_init = torch.zeros((peak_feature.shape[0], len(gene_row)), dtype=torch.int32).to(device)
-    for peak_id in range(peak_feature.shape[0]):
-        gene_init[peak_id] = gene_row + peak_id * gene_feature.shape[0]
-
-    # Update the combined gene data tensors
-    gene_combine_row = gene_init.reshape(1, -1)[0]
-    gene_combine_col = gene_col.repeat(1, peak_feature.shape[0])[0]
-    gene_combine_data = gene_data.repeat(peak_feature.shape[0])
-
-    # Create the final sparse gene_feature tensor
-    gene_feature_ori = torch.sparse.FloatTensor(torch.vstack((gene_combine_row, gene_combine_col)), gene_combine_data, torch.Size((gene_feature.shape[0] * peak_feature.shape[0], gene_feature.shape[1])))
-    return gene_feature_ori.to(device)
+    """Vectorized. For every nonzero (g, c, v) of gene_feature and every peak p, emit (p*G + g, c, v).
+    Shape (G*P, C); identical to the original loop version."""
+    G, P = gene_feature.shape[0], peak_feature.shape[0]
+    gene_row, gene_col = torch.nonzero(gene_feature, as_tuple=True)
+    gene_data = gene_feature[gene_row, gene_col]
+    p = torch.arange(P, device=gene_feature.device)
+    rows = (p.unsqueeze(1) * G + gene_row.unsqueeze(0)).reshape(-1)
+    cols = gene_col.repeat(P)
+    vals = gene_data.repeat(P)
+    return torch.sparse_coo_tensor(torch.stack((rows, cols)), vals,
+                                   (G * P, gene_feature.shape[1])).to(device)
 
 
 def gene_Peak_Score(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_names):
-    y = ad.AnnData(RNA_matrix.transpose(), dtype='int32')
+    y = ad.AnnData(RNA_matrix.transpose().astype('float32'))
     y.var_names=gene_names[0]
     y.obs['pred'] = np.array(pred_label,dtype='int64')
     y.obs['pred'] = y.obs['pred'].astype("category")
@@ -91,7 +65,7 @@ def gene_Peak_Score(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_na
 
 
 def small_gene_Peak_Score(pred_label,RNA_matrix,ATAC_matrix,RP_matrix,gene_names,peak_names,choice_cluser):  
-    y = ad.AnnData(RNA_matrix.transpose(), dtype='int32')
+    y = ad.AnnData(RNA_matrix.transpose().astype('float32'))
     y.var_names=gene_names[0]
     y.obs['pred'] = np.array(pred_label,dtype='int64')
     cell_emb_binary = sp.coo_matrix((np.ones(len(y.obs['pred'])),(np.array(range(len(y.obs['pred']))),list(y.obs['pred']))))
@@ -145,7 +119,7 @@ def egrn_calculate(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_nam
             gene_peak_score = gene_peak_score.drop_duplicates(['gene','peak'])
             gene_peak_score = gene_peak_score.sort_values(by="score",ascending=False)
             gene_peak_score['class'] = i
-            egrn_df = egrn_df.append(gene_peak_score)
+            egrn_df = pd.concat([egrn_df, gene_peak_score])
     
     except:
         try:
@@ -156,7 +130,7 @@ def egrn_calculate(pred_label,nodes_id,RNA_matrix,ATAC_matrix,RP_matrix,gene_nam
                 Total_gene_peak_score_df,Total_gene_peak_score = small_gene_Peak_Score(pred_label,RNA_matrix,ATAC_matrix,RP_matrix,gene_names,peak_names,choice_cluser=i)
                 Total_gene_peak_score_df = Total_gene_peak_score_df[Total_gene_peak_score_df['score'] > threshold]
                 Total_gene_peak_score_df['class'] = Total_name[i]
-                egrn_df = egrn_df.append(Total_gene_peak_score_df.sort_values(by="score",ascending=False))
+                egrn_df = pd.concat([egrn_df, Total_gene_peak_score_df.sort_values(by="score",ascending=False)])
         except:
             print('You are encountering memory shortage issues, please follow the tutorial instructions to address it.')
             egrn_df = pd.DataFrame(columns=['gene', 'peak', 'score', 'class'])

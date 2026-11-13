@@ -64,6 +64,39 @@ class GNN_from_raw(nn.Module):
         return meta_xs
 
 
+def cluster_cosine(cell_emb, labels, reduce='sum', self_pairs=True):
+    """Within-cluster cosine similarity of cell embeddings (the paper's Cos_loss, eq. 13), for one batch.
+
+    For each cluster present in `labels`, the mean cosine similarity over its pairs of cells; then combined across
+    clusters by `reduce`:
+      'sum'  (released code): sum over clusters, so the term grows with the number of clusters in the batch;
+      'mean': average over clusters, bounded in [-1, 1] and comparable in scale to the other loss terms.
+    self_pairs=True (released code) includes each cell paired with itself (similarity exactly 1); False excludes
+    those trivial pairs, so a cluster with a single cell in the batch contributes nothing.
+    Returns (value, embeddings of the last cluster visited); the latter is what stage 1 returns as `h`.
+    The defaults reproduce the released computation exactly (same operations, same order).
+    """
+    if reduce not in ('sum', 'mean'):
+        raise ValueError(f"reduce must be 'sum' or 'mean', got {reduce!r}")
+    g = [int(i) for i in labels]
+    total, n_used, h = 0, 0, None
+    for i in set([int(k) for k in labels]):
+        h = cell_emb[[True if i == j else False for j in g]]
+        n = h.shape[0]
+        if self_pairs:
+            a, b = list(range(n)) * n, [v for v in range(n) for _ in range(n)]
+        else:
+            a = [q for v in range(n) for q in range(n) if q != v]
+            b = [v for v in range(n) for q in range(n) if q != v]
+            if not a:
+                continue
+        total = F.cosine_similarity(h[a,], h[b]).mean() + total
+        n_used += 1
+    if reduce == 'mean' and n_used:
+        total = total / n_used
+    return total, h
+
+
 class Net(nn.Module):
     def __init__(self, dim_in, dim_out):
         super(Net, self).__init__()
@@ -76,8 +109,10 @@ class Net(nn.Module):
 
 class NodeDimensionReduction(nn.Module):
     def __init__(self, RNA_matrix, ATAC_matrix, indices, ini_p1, n_hid, n_heads,
-                 n_layers, labsm, lr, wd, device, num_types=3, num_relations=2, epochs=1):
+                 n_layers, labsm, lr, wd, device, num_types=3, num_relations=2, epochs=1,
+                 cosine_reduce='sum', cosine_self_pairs=True):
         super(NodeDimensionReduction, self).__init__()
+        self.cosine_reduce, self.cosine_self_pairs = cosine_reduce, cosine_self_pairs   # see cluster_cosine()
         self.RNA_matrix = RNA_matrix
         self.ATAC_matrix = ATAC_matrix
         self.indices = indices
@@ -106,21 +141,22 @@ class NodeDimensionReduction(nn.Module):
 
         self.optimizer = torch.optim.AdamW(self.gnn.parameters(), lr=self.lr, weight_decay=self.wd)
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', factor=0.5, patience=5,
-                                                                    verbose=True)
+                                                                    )
 
     def train_model(self, n_batch):
         print('The training process for the NodeDimensionReduction model has started. Please wait.')
+        if not hasattr(self, 'history'):
+            self.history = []
         for epoch in tqdm(range(self.epochs)):
+            ep = {'loss': 0.0, 'loss_cluster': 0.0, 'cos_sim': 0.0}
             for batch_id in np.arange(n_batch):
                 gene_index = self.indices[batch_id]['gene_index']
                 cell_index = self.indices[batch_id]['cell_index']
                 peak_index = self.indices[batch_id]['peak_index']
-                gene_feature = self.RNA_matrix[list(gene_index),]
                 cell_feature = self.RNA_matrix[:, list(cell_index)].T
-                peak_feature = self.ATAC_matrix[list(peak_index),]
-                gene_feature = torch.tensor(np.array(gene_feature.todense()), dtype=torch.float32).to(self.device)
+                gene_feature = dense_rows(self.RNA_matrix, gene_index, self.device)
                 cell_feature = torch.tensor(np.array(cell_feature.todense()), dtype=torch.float32).to(self.device)
-                peak_feature = torch.tensor(np.array(peak_feature.todense()), dtype=torch.float32).to(self.device)
+                peak_feature = dense_rows(self.ATAC_matrix, peak_index, self.device)
 
                 node_feature = [cell_feature, gene_feature, peak_feature]
                 gene_cell_sub = self.RNA_matrix[list(gene_index),][:, list(cell_index)]
@@ -148,7 +184,7 @@ class NodeDimensionReduction(nn.Module):
                     np.ones(np.nonzero(gene_cell_sub)[1].shape[0])) + list(
                     2 * np.ones(np.nonzero(peak_cell_sub)[0].shape[0])) + list(
                     3 * np.ones(np.nonzero(peak_cell_sub)[1].shape[0])))).to(self.device)
-                l = torch.LongTensor(np.array(self.ini_p1)[[cell_index]]).to(self.device)
+                l = torch.LongTensor(np.array(self.ini_p1)[cell_index]).to(self.device)
                 node_rep = self.gnn.forward(node_feature, node_type,
                                             edge_index,
                                             edge_type).to(self.device)
@@ -172,24 +208,27 @@ class NodeDimensionReduction(nn.Module):
                 loss_kl2 = F.kl_div(logp_x2, p_y2, reduction='mean')
                 loss_kl = loss_kl1 + loss_kl2
                 loss_cluster = self.LabSm(cell_emb, l)
-                lll = 0
-                g = [int(i) for i in l]
-                for i in set([int(k) for k in l]):
-                    h = cell_emb[[True if i == j else False for j in g]]
-                    ll = F.cosine_similarity(h[list(range(h.shape[0])) * h.shape[0],],
-                                             h[[v for v in range(h.shape[0]) for i in range(h.shape[0])]]).mean()
-                    lll = ll + lll
+                lll, h = cluster_cosine(cell_emb, l, self.cosine_reduce, self.cosine_self_pairs)
                 loss = loss_cluster - lll
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+                ep['loss'] += float(loss.detach()); ep['loss_cluster'] += float(loss_cluster.detach())
+                ep['cos_sim'] += float(torch.as_tensor(lll).detach())
+            self.history.append({k: v / max(n_batch, 1) for k, v in ep.items()})
         print('The training for the NodeDimensionReduction model has been completed.')
         return self.gnn, cell_emb, gene_emb, peak_emb, h
 
 
 class MarsGT(nn.Module):
-    def __init__(self, gnn, h, labsm, n_hid, n_batch, device, lr, wd, num_epochs=1):
+    def __init__(self, gnn, h, labsm, n_hid, n_batch, device, lr, wd, num_epochs=1, cosine_loss=False,
+                 cosine_reduce='sum', cosine_self_pairs=True):
+        """cosine_loss=True adds the paper's within-cluster cosine term (eq. 12: Loss = KL_cluster - Cos_loss + ...)
+        computed on the CURRENT batch's cell embeddings, as stage 1 does. The released code's version (lll2) used a
+        stale stage-1 tensor (self.h) and was commented out; default False keeps the released behaviour."""
         super(MarsGT, self).__init__()
+        self.cosine_loss = cosine_loss
+        self.cosine_reduce, self.cosine_self_pairs = cosine_reduce, cosine_self_pairs   # see cluster_cosine()
         self.lr = lr
         self.wd = wd
         self.gnn = gnn
@@ -210,18 +249,19 @@ class MarsGT(nn.Module):
         sim_l = list()
         nmi_l = list()
         ini_p1 = np.array(ini_p1)
+        if not hasattr(self, 'history'):
+            self.history = []
 
         for epoch in range(self.num_epochs):
+            ep = {'loss': 0.0, 'loss_net': 0.0, 'loss_cluster': 0.0, 'loss_kl': 0.0}
             for batch_id in tqdm(np.arange(self.n_batch)):
                 gene_index = indices[batch_id]['gene_index']
                 cell_index = indices[batch_id]['cell_index']
                 peak_index = indices[batch_id]['peak_index']
-                gene_feature = RNA_matrix[list(gene_index),]
                 cell_feature = RNA_matrix[:, list(cell_index)].T
-                peak_feature = ATAC_matrix[list(peak_index),]
-                gene_feature = torch.tensor(np.array(gene_feature.todense()), dtype=torch.float32).to(self.device)
+                gene_feature = dense_rows(RNA_matrix, gene_index, self.device)
                 cell_feature = torch.tensor(np.array(cell_feature.todense()), dtype=torch.float32).to(self.device)
-                peak_feature = torch.tensor(np.array(peak_feature.todense()), dtype=torch.float32).to(self.device)
+                peak_feature = dense_rows(ATAC_matrix, peak_index, self.device)
                 node_feature = [cell_feature, gene_feature, peak_feature]
                 gene_cell_sub = RNA_matrix[list(gene_index),][:, list(cell_index)]
                 peak_cell_sub = ATAC_matrix[list(peak_index),][:, list(cell_index)]
@@ -248,10 +288,10 @@ class MarsGT(nn.Module):
                     3 * np.ones(np.nonzero(peak_cell_sub)[1].shape[0])))).to(self.device)
 
                 # edge_type = torch.LongTensor(np.array(list(np.zeros(gene_cell_edge_index.shape[1]))+list(np.ones(peak_cell_edge_index.shape[1]) ))).to(device)
-                l = torch.LongTensor(np.array(ini_p1)[[cell_index]]).to(self.device)
-                # l2 = torch.LongTensor(label[[cell_index]])
+                l = torch.LongTensor(np.array(ini_p1)[cell_index]).to(self.device)
+                # l2 = torch.LongTensor(label[cell_index])
 
-                # l = torch.LongTensor(ini_p1)[[cell_index]].to(device)
+                # l = torch.LongTensor(ini_p1)[cell_index].to(device)
 
                 node_rep = self.gnn.forward(node_feature, node_type,
                                             edge_index,
@@ -304,7 +344,7 @@ class MarsGT(nn.Module):
                 row_ind = torch.Tensor(list(gene_peak_1.tocoo().row) * len(cell_index))
                 col_ind = torch.Tensor([v for v in range(len(cell_index)) for i in range(len(gene_peak_1.tocoo().row))])
                 data = torch.Tensor(list(gene_peak_1.tocoo().data) * len(cell_index))
-                a = torch.sparse.FloatTensor(torch.vstack((row_ind, col_ind)).long(), data,
+                a = torch.sparse_coo_tensor(torch.vstack((row_ind, col_ind)).long(), data,
                                              (gene_peak_1.shape[0], len(cell_index))).to(self.device)
                 gene_peak_cell = gene_peak_ori.mul(a)
                 # the original in cell level (peak * gene * peak_gene)
@@ -313,17 +353,24 @@ class MarsGT(nn.Module):
                 gene_peak_cell_cluster = torch.mm(gene_peak_ori.mul(a), cell_emb)
 
                 logp_x3 = F.log_softmax(gene_peak_cluster_pre, dim=-1)
-                p_y3 = F.softmax(gene_peak_cell_cluster, dim=-1)
+                logp_y3 = F.log_softmax(gene_peak_cell_cluster, dim=-1)
 
-                loss_net = F.kl_div(logp_x3, p_y3, reduction='mean')
+                loss_net = F.kl_div(logp_x3, logp_y3, reduction='mean', log_target=True)
 
                 loss = loss_net + loss_cluster + loss_kl  # - lll2
+                if self.cosine_loss:   # paper eq. 12 cosine term, on this batch (mirrors stage 1)
+                    cos_sum, _ = cluster_cosine(cell_emb, l, self.cosine_reduce, self.cosine_self_pairs)
+                    loss = loss - cos_sum
+                    ep['cos_sim'] = ep.get('cos_sim', 0.0) + float(torch.as_tensor(cos_sum).detach())
                 # loss = loss_cluster  + loss_kl - lll + loss_net  #+ loss_S_R#+ loss_net
                 self.gnn_optimizer.zero_grad()
                 self.net_optimizer.zero_grad()
                 loss.backward()
                 self.gnn_optimizer.step()
                 self.net_optimizer.step()
+                for k_, v_ in (('loss', loss), ('loss_net', loss_net), ('loss_cluster', loss_cluster), ('loss_kl', loss_kl)):
+                    ep[k_] += float(v_.detach())
+            self.history.append({k: v / max(self.n_batch, 1) for k, v in ep.items()})
         return self.gnn
 
     def train_model(self, indices, RNA_matrix, ATAC_matrix, Gene_Peak, ini_p1):
@@ -335,7 +382,21 @@ class MarsGT(nn.Module):
 
 
 def MarsGT_pred(RNA_matrix, ATAC_matrix, RP_matrix, egrn, MarsGT_gnn, indices, nodes_id, cell_size, device, gene_names,
-                peak_names):
+                peak_names, eval_mode=True, pred_graph='released'):
+    """eval_mode=True (default in this fork): predict with dropout OFF, so the same trained model always gives the
+    same labels. The released code predicted in training mode (dropout 0.3 active), which made repeated predictions
+    of one model disagree (ARI ~0.3 in tests). eval_mode=False reproduces the original behaviour. The model's
+    train/eval mode is restored afterwards.
+
+    pred_graph='released' (default): the released prediction graph -- gene->cell edges as relation 0 and peak->cell
+    edges as relation 1 (in training, relation 1 is cell->gene), with no cell->gene / cell->peak edges.
+    pred_graph='training': the same four edge types, in both directions, as the training batches (0 gene->cell,
+    1 cell->gene, 2 peak->cell, 3 cell->peak), so prediction runs the computation the model was trained on."""
+    if pred_graph not in ('released', 'training'):
+        raise ValueError(f"pred_graph must be 'released' or 'training', got {pred_graph!r}")
+    was_training = MarsGT_gnn.training
+    if eval_mode:
+        MarsGT_gnn.eval()
     n_batch = math.ceil(nodes_id.shape[0] / cell_size)
     embedding = []
     l_pre = []
@@ -345,27 +406,43 @@ def MarsGT_pred(RNA_matrix, ATAC_matrix, RP_matrix, egrn, MarsGT_gnn, indices, n
             gene_index = indices[batch_id]['gene_index']
             cell_index = indices[batch_id]['cell_index']
             peak_index = indices[batch_id]['peak_index']
-            gene_feature = RNA_matrix[list(gene_index),]
             cell_feature = RNA_matrix[:, list(cell_index)].T
-            peak_feature = ATAC_matrix[list(peak_index),]
-            gene_feature = torch.tensor(np.array(gene_feature.todense()), dtype=torch.float32).to(device)
+            gene_feature = dense_rows(RNA_matrix, gene_index, device)
             cell_feature = torch.tensor(np.array(cell_feature.todense()), dtype=torch.float32).to(device)
-            peak_feature = torch.tensor(np.array(peak_feature.todense()), dtype=torch.float32).to(device)
+            peak_feature = dense_rows(ATAC_matrix, peak_index, device)
             node_feature = [cell_feature, gene_feature, peak_feature]
             gene_cell_sub = RNA_matrix[list(gene_index),][:, list(cell_index)]
             peak_cell_sub = ATAC_matrix[list(peak_index),][:, list(cell_index)]
-            gene_cell_edge_index = torch.LongTensor(
-                [np.nonzero(gene_cell_sub)[0] + gene_cell_sub.shape[1], np.nonzero(gene_cell_sub)[1]]).to(device)
-            peak_cell_edge_index = torch.LongTensor(
-                [np.nonzero(peak_cell_sub)[0] + gene_cell_sub.shape[0] + gene_cell_sub.shape[1],
-                 np.nonzero(peak_cell_sub)[1]]).to(device)
-            edge_index = torch.cat((gene_cell_edge_index, peak_cell_edge_index), dim=1)
+            if pred_graph == 'released':
+                gene_cell_edge_index = torch.LongTensor(
+                    [np.nonzero(gene_cell_sub)[0] + gene_cell_sub.shape[1], np.nonzero(gene_cell_sub)[1]]).to(device)
+                peak_cell_edge_index = torch.LongTensor(
+                    [np.nonzero(peak_cell_sub)[0] + gene_cell_sub.shape[0] + gene_cell_sub.shape[1],
+                     np.nonzero(peak_cell_sub)[1]]).to(device)
+                edge_index = torch.cat((gene_cell_edge_index, peak_cell_edge_index), dim=1)
+                edge_type = torch.LongTensor(np.array(
+                    list(np.zeros(gene_cell_edge_index.shape[1])) + list(np.ones(peak_cell_edge_index.shape[1])))).to(
+                    device)
+            else:   # identical construction to the training loops (MarsGT.forward / NodeDimensionReduction)
+                gene_cell_edge_index1 = list(np.nonzero(gene_cell_sub)[0] + gene_cell_sub.shape[1]) + list(
+                    np.nonzero(gene_cell_sub)[1])
+                gene_cell_edge_index2 = list(np.nonzero(gene_cell_sub)[1]) + list(
+                    np.nonzero(gene_cell_sub)[0] + gene_cell_sub.shape[1])
+                gene_cell_edge_index = torch.LongTensor([gene_cell_edge_index1, gene_cell_edge_index2]).to(device)
+                peak_cell_edge_index1 = list(
+                    np.nonzero(peak_cell_sub)[0] + gene_cell_sub.shape[0] + gene_cell_sub.shape[1]) + list(
+                    np.nonzero(peak_cell_sub)[1])
+                peak_cell_edge_index2 = list(np.nonzero(peak_cell_sub)[1]) + list(
+                    np.nonzero(peak_cell_sub)[0] + gene_cell_sub.shape[0] + gene_cell_sub.shape[1])
+                peak_cell_edge_index = torch.LongTensor([peak_cell_edge_index1, peak_cell_edge_index2]).to(device)
+                edge_index = torch.cat((gene_cell_edge_index, peak_cell_edge_index), dim=1)
+                edge_type = torch.LongTensor(np.array(list(np.zeros(np.nonzero(gene_cell_sub)[0].shape[0])) + list(
+                    np.ones(np.nonzero(gene_cell_sub)[1].shape[0])) + list(
+                    2 * np.ones(np.nonzero(peak_cell_sub)[0].shape[0])) + list(
+                    3 * np.ones(np.nonzero(peak_cell_sub)[1].shape[0])))).to(device)
             node_type = torch.LongTensor(np.array(
                 list(np.zeros(len(cell_index))) + list(np.ones(len(gene_index))) + list(
                     np.ones(len(peak_index)) * 2))).to(device)
-            edge_type = torch.LongTensor(np.array(
-                list(np.zeros(gene_cell_edge_index.shape[1])) + list(np.ones(peak_cell_edge_index.shape[1])))).to(
-                device)
             node_rep = MarsGT_gnn.forward(node_feature, node_type,
                                           edge_index,
                                           edge_type).to(device)
@@ -388,7 +465,9 @@ def MarsGT_pred(RNA_matrix, ATAC_matrix, RP_matrix, egrn, MarsGT_gnn, indices, n
     if egrn:
         final_egrn_df = egrn_calculate(cell_clu, nodes_id, RNA_matrix, ATAC_matrix, RP_matrix, gene_names, peak_names)
         MarsGT_result = {'pred_label': cell_clu, 'cell_embedding': cell_embedding, 'egrn': final_egrn_df}
+        MarsGT_gnn.train(was_training)
         return MarsGT_result
     else:
         MarsGT_result = {'pred_label': cell_clu, 'cell_embedding': cell_embedding}
+        MarsGT_gnn.train(was_training)
         return MarsGT_result

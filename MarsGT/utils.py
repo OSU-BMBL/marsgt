@@ -36,7 +36,164 @@ def subgraph(graph, seed, n_neighbors, node_sele_prob):
     return indices
 
 
-def batch_select_whole(RNA_matrix, ATAC_matrix, neighbor=[20], cell_size=30):
+# ---------------------------------------------------------------------------------------------------------------
+# Device-side feature rows.
+# Every batch needs dense rows of RNA_matrix / ATAC_matrix (features x ALL cells). The original code densified them
+# on the CPU and copied ~0.8 GB per batch to the GPU at full dataset width. Instead, keep one sparse (CSR) copy of
+# each matrix on the device and densify the selected rows there. Values are identical (float32 counts).
+#   GPU_FEATURES = 'auto' -> use the device cache when the device is CUDA (default)
+#                  True   -> always (also on CPU; mainly for testing)
+#                  False  -> original CPU path
+# ---------------------------------------------------------------------------------------------------------------
+GPU_FEATURES = 'auto'
+_ROW_CACHE = {}
+
+
+class DeviceRows:
+    """Sparse CSR copy of a (features x cells) scipy matrix on `device`; .rows(idx) returns dense float32 rows."""
+
+    def __init__(self, M, device):
+        import scipy.sparse as _sp
+        # The original M[idx,].todense() is column-major (Fortran order) when M is CSC. Matmul rounding depends on
+        # memory layout, so return the same layout to reproduce the original arithmetic exactly.
+        self.fortran = getattr(M, 'format', None) == 'csc'
+        M = _sp.csr_matrix(M, dtype=np.float32, copy=True)
+        M.sum_duplicates(); M.sort_indices()
+        self.shape, self.device = M.shape, device
+        self.indptr = torch.as_tensor(M.indptr.astype(np.int64), device=device)
+        self.indices = torch.as_tensor(M.indices.astype(np.int32), device=device)
+        self.data = torch.as_tensor(M.data, device=device)
+
+    def rows(self, idx):
+        idx = torch.as_tensor(np.asarray(list(idx), dtype=np.int64), device=self.device)
+        if self.fortran:   # (n, C) view with strides (1, n): same layout as the original, no extra memory
+            out = torch.zeros((self.shape[1], idx.numel()), dtype=torch.float32, device=self.device).t()
+        else:
+            out = torch.zeros((idx.numel(), self.shape[1]), dtype=torch.float32, device=self.device)
+        start = self.indptr[idx]
+        cnt = self.indptr[idx + 1] - start
+        total = int(cnt.sum())
+        if total == 0:
+            return out
+        row = torch.repeat_interleave(torch.arange(idx.numel(), device=self.device), cnt)
+        first = torch.repeat_interleave(torch.cumsum(cnt, 0) - cnt, cnt)
+        pos = torch.repeat_interleave(start, cnt) + (torch.arange(total, device=self.device) - first)
+        out[row, self.indices[pos].long()] = self.data[pos]
+        return out
+
+    def nbytes(self):
+        return sum(t.numel() * t.element_size() for t in (self.indptr, self.indices, self.data))
+
+
+def _use_device_rows(device):
+    if GPU_FEATURES == 'auto':
+        return torch.device(device).type == 'cuda'
+    return bool(GPU_FEATURES)
+
+
+def dense_rows(M, idx, device):
+    """Dense float32 tensor of rows `idx` of scipy matrix M, on `device`. Same values as the original
+    torch.tensor(np.array(M[list(idx),].todense()), dtype=torch.float32).to(device)."""
+    if not _use_device_rows(device):
+        return torch.tensor(np.array(M[list(idx), ].todense()), dtype=torch.float32).to(device)
+    key = (id(M), str(device))
+    hit = _ROW_CACHE.get(key)
+    if hit is None or hit[0] is not M or hit[1] != (M.shape, M.nnz):
+        hit = _ROW_CACHE[key] = (M, (M.shape, M.nnz), DeviceRows(M, device))
+    return hit[2].rows(idx)
+
+
+def clear_feature_cache():
+    """Free the device copies of RNA/ATAC matrices (e.g. between datasets)."""
+    _ROW_CACHE.clear()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
+SAMPLING_MODES = ('upstream', 'aligned', 'paper')
+
+
+def feature_probs(counts, totals, mode, is_rna, quantile=0.25):
+    """Per-cell sampling probabilities over that cell's nonzero features.
+
+    counts : 1-D array, the cell's counts for its nonzero features (genes or peaks)
+    totals : 1-D array, each of those features' total count across all cells
+    mode   : 'aligned' -> upstream weights (RNA: log(x+1) after zeroing x<5; ATAC: log(x+1)) passed
+                          through softmax, i.e. proportional to x+1 (or 1), but kept aligned to features
+             'paper'   -> Wang et al. 2024 (Nat Commun 15:338, doi:10.1038/s41467-023-44570-8) eqs. 2-5:
+                          Prop = x_{i,k0} / sum_k x_{i,k}   (share of the feature's total found in this cell)
+                          RNA: keep genes with x > a, a = `quantile` of the cell's nonzero counts (falls back
+                               to x >= a if that leaves nothing); Prob = Prop / sum(Prop over kept genes)
+                          ATAC: Prob = Prop / sum(Prop)
+    Returns probabilities (same length as counts; 0 for filtered features).
+    """
+    counts = np.asarray(counts, dtype=np.float64)
+    if counts.size == 0:
+        return counts
+    if mode == 'aligned':
+        w = np.log(np.where(counts < 5, 0, counts) + 1) if is_rna else np.log(counts + 1)
+        w = np.exp(w - w.max())
+        return w / w.sum()
+    if mode == 'paper':
+        prop = counts / np.asarray(totals, dtype=np.float64)
+        if is_rna:
+            a = np.quantile(counts, quantile)
+            keep = counts > a
+            if not keep.any():
+                keep = counts >= a
+            prop = np.where(keep, prop, 0.0)
+        return prop / prop.sum()
+    raise ValueError(f'unknown sampling mode {mode!r}; choose from {SAMPLING_MODES}')
+
+
+def _sample_cell(matrix_csc, totals, node, n, mode, is_rna, quantile):
+    col = matrix_csc[:, node]
+    idx, counts = col.indices, col.data
+    if idx.size == 0:
+        return []
+    p = feature_probs(counts, totals[idx], mode, is_rna, quantile)
+    k = min(n, int((p > 0).sum()))
+    return sorted(np.random.choice(idx, k, replace=False, p=p).tolist())
+
+
+def _batch_select_weighted(RNA_matrix, ATAC_matrix, neighbor, cell_size, sampling, quantile):
+    if len(neighbor) != 1:
+        raise ValueError('aligned/paper sampling supports a single hop only, e.g. neighbor=[20]')
+    n = int(neighbor[0])
+    R, A = RNA_matrix.tocsc(), ATAC_matrix.tocsc()
+    R.sort_indices(); A.sort_indices()
+    r_tot = np.asarray(R.sum(axis=1)).ravel()
+    a_tot = np.asarray(A.sum(axis=1)).ravel()
+    node_ids = np.random.choice(R.shape[1], size=R.shape[1], replace=False)
+    n_batch = math.ceil(node_ids.shape[0] / cell_size)
+    indices_ss, dic = [], {}
+    for i in tqdm(range(n_batch)):
+        cells = node_ids[i * cell_size:(i + 1) * cell_size]
+        g_all, p_all = set(), set()
+        for node in cells:
+            g = _sample_cell(R, r_tot, node, n, sampling, True, quantile)
+            p = _sample_cell(A, a_tot, node, n, sampling, False, quantile)
+            dic[node] = {'g': g, 'p': p}
+            g_all.update(g); p_all.update(p)
+        indices_ss.append({'gene_index': sorted(g_all), 'peak_index': sorted(p_all), 'cell_index': cells})
+    return indices_ss, node_ids, dic
+
+
+def batch_select_whole(RNA_matrix, ATAC_matrix, neighbor=[20], cell_size=30, sampling='upstream', quantile=0.25):
+    """Partition cells into batches and sample each cell's gene/peak neighbors.
+
+    sampling : 'upstream' (default) -> original MarsGT 0.2.1 code, unchanged. Note its probabilities are
+                                       misaligned with features (list(set(...)) reorders the features after
+                                       the probabilities were computed), so weights are effectively shuffled.
+               'aligned'            -> the upstream weighting with the alignment bug fixed.
+               'paper'              -> the specificity-based scheme described in the MarsGT paper (eqs. 2-5).
+    quantile : 'paper' only; gene filter threshold as a quantile of the cell's nonzero counts (paper: first quartile).
+    """
+    if sampling not in SAMPLING_MODES:
+        raise ValueError(f'unknown sampling mode {sampling!r}; choose from {SAMPLING_MODES}')
+    if sampling != 'upstream':
+        print(f'Partitioning cells into batches ({sampling} sampling).')
+        return _batch_select_weighted(RNA_matrix, ATAC_matrix, neighbor, cell_size, sampling, quantile)
     print('We are currently in the process of partitioning the data into batches. Kindly wait for a moment, please.')
     node_ids = np.random.choice(RNA_matrix.shape[1], size=RNA_matrix.shape[1], replace=False)
     n_batch = math.ceil(node_ids.shape[0] / cell_size)
@@ -120,7 +277,7 @@ def initial_clustering(RNA_matrix, custom_n_neighbors=None, n_pcs=40, custom_res
         else:
             return 0.8, 15
 
-    adata = ad.AnnData(RNA_matrix.transpose(), dtype='int32')
+    adata = ad.AnnData(RNA_matrix.transpose().astype('float32'))
 
     # If the user did not provide a custom resolution or n_neighbors value, use the values calculated by segment_function
     if custom_resolution is None or custom_n_neighbors is None:

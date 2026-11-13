@@ -1,5 +1,31 @@
 <h1 align="center">MarsGT: Multi-omics data analysis for rare population inference using single-cell graph transformer</h1>
 
+> **Fork note (branch `modern-deps`).** This fork runs on current Python/PyTorch (tested: Python 3.13, torch 2.11 + CUDA 13, torch_geometric 2.8, pandas 2.2, anndata 0.13) and fixes the stage-2 NaN embeddings reported in OSU-BMBL/marsgt#1, #3, #4. Install with:
+>
+> ```bash
+> pip install "git+https://github.com/guarelin/marsgt.git@modern-deps"
+> ```
+>
+> Changes (one commit each): NumPy ≥1.23 label indexing; AnnData `dtype=` removal; `torch.sparse_coo_tensor`; `ReduceLROnPlateau(verbose=)` removal; `DataFrame.append` → `pd.concat` (previously made eGRN silently return empty); stage-2 KL computed with `log_target=True` (the NaN fix). `pyproject.toml` declares version ranges; the pinned `requirements.txt` below is the original upstream environment. The PyG extensions (`torch-sparse`, `torch-scatter`) are not imported by MarsGT and are not needed.
+>
+> **Sub-sampling modes** (`batch_select_whole(..., sampling=...)`): `'upstream'` (default) is the original code, unchanged. Its per-feature probabilities are misaligned with the features, because `list(set(...))` reorders them after the probabilities are computed, so the weights are effectively shuffled. `'aligned'` is the same weighting with that bug fixed. `'paper'` implements the specificity-based scheme of the MarsGT paper (Wang et al. 2024, *Nat Commun* 15:338, doi:10.1038/s41467-023-44570-8, eqs. 2-5): keep genes above the cell's first-quartile count, then sample with probability proportional to the share of each feature's total counts found in the cell. See `tests/test_sampling.py`.
+>
+> **Batch features built on the GPU** (0.2.1.post3): each batch's dense gene and peak inputs (rows of `RNA_matrix`/`ATAC_matrix` across *all* cells) are built on the GPU from one resident sparse copy of each matrix, so the original per-batch CPU densification and copy are gone. Values, memory layout and therefore training are identical (`tests/test_device_rows.py`). The resident copy costs about 1-3 GB of GPU memory at 180k cells. Turn it off with `MarsGT.utils.GPU_FEATURES = False`, and free it with `MarsGT.utils.clear_feature_cache()`.
+>
+> **Prediction with dropout off, and per-epoch loss history** (0.2.1.post4):
+> - The released `MarsGT_pred` predicted with dropout (0.3) still active, so repeated predictions of the same trained model disagreed: ARI about 0.3, with about 40% of cells changing cluster. It now predicts in eval mode by default; `eval_mode=False` restores the original behavior.
+> - Both training stages record mean losses per epoch in `.history`.
+> - Training one epoch at a time on the same objects is bitwise-identical to one multi-epoch call, so wrappers can add early stopping without changing the math (`tests/test_training_controls.py`).
+>
+> **Paper-faithful options** (0.2.1.post5; all off by default, so the released behavior is unchanged):
+> - `NodeDimensionReduction(..., num_relations=4)`: all four relations pass messages, including peak↔cell, as the paper describes. The released `num_relations=2` silently drops relations 2 and 3, so ATAC values have no effect on stage 1.
+> - `MarsGT_pred(..., pred_graph='training')`: prediction uses the same four-relation, both-direction graph as training. The released prediction graph labels peak→cell edges as relation 1, which in training is cell→gene.
+> - `MarsGT(..., cosine_loss=True)`: adds the paper's stage-2 cosine term (eq. 12), computed on the current batch. The released version used a stale stage-1 tensor and was commented out.
+>
+> - `cosine_reduce='mean'` and `cosine_self_pairs=False` (0.2.1.post6; on both `NodeDimensionReduction` and `MarsGT`): average the within-cluster cosine term over clusters, rather than summing it, and drop each cell's similarity with itself. That bounds the term to [−1, 1]. The released sum grows with the number of clusters per batch and outweighed the other losses in our runs. The defaults reproduce the released code exactly.
+>
+> See `tests/test_paper_options.py`.
+
 ## Description
 
 MarsGT: Multi-omics analysis for rare population inference using single-cell Graph Transformer, which is an end-to-end deep learning model for rare cell population identification from scMulti-omics data.
