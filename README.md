@@ -24,6 +24,8 @@
 >
 > - `cosine_reduce='mean'` and `cosine_self_pairs=False` (0.2.1.post6; on both `NodeDimensionReduction` and `MarsGT`): average the within-cluster cosine term over clusters, rather than summing it, and drop each cell's similarity with itself. That bounds the term to [−1, 1]. The released sum grows with the number of clusters per batch and outweighed the other losses in our runs. The defaults reproduce the released code exactly.
 >
+> - `cosine_weight` (0.2.1.post7; both stages; default 1.0 = released): scales the cosine term, and 0 removes it. With `labsm=1.0` and `cosine_weight=0`, training no longer uses the initial Leiden labels at all, which is useful for testing what the graph model learns on its own.
+>
 > See `tests/test_paper_options.py`.
 
 ## Description

@@ -110,9 +110,10 @@ class Net(nn.Module):
 class NodeDimensionReduction(nn.Module):
     def __init__(self, RNA_matrix, ATAC_matrix, indices, ini_p1, n_hid, n_heads,
                  n_layers, labsm, lr, wd, device, num_types=3, num_relations=2, epochs=1,
-                 cosine_reduce='sum', cosine_self_pairs=True):
+                 cosine_reduce='sum', cosine_self_pairs=True, cosine_weight=1.0):
         super(NodeDimensionReduction, self).__init__()
         self.cosine_reduce, self.cosine_self_pairs = cosine_reduce, cosine_self_pairs   # see cluster_cosine()
+        self.cosine_weight = cosine_weight   # 1.0 = released; 0 removes the cosine term (stage-1 loss = clustering only)
         self.RNA_matrix = RNA_matrix
         self.ATAC_matrix = ATAC_matrix
         self.indices = indices
@@ -209,7 +210,7 @@ class NodeDimensionReduction(nn.Module):
                 loss_kl = loss_kl1 + loss_kl2
                 loss_cluster = self.LabSm(cell_emb, l)
                 lll, h = cluster_cosine(cell_emb, l, self.cosine_reduce, self.cosine_self_pairs)
-                loss = loss_cluster - lll
+                loss = loss_cluster - self.cosine_weight * lll
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
@@ -222,13 +223,14 @@ class NodeDimensionReduction(nn.Module):
 
 class MarsGT(nn.Module):
     def __init__(self, gnn, h, labsm, n_hid, n_batch, device, lr, wd, num_epochs=1, cosine_loss=False,
-                 cosine_reduce='sum', cosine_self_pairs=True):
+                 cosine_reduce='sum', cosine_self_pairs=True, cosine_weight=1.0):
         """cosine_loss=True adds the paper's within-cluster cosine term (eq. 12: Loss = KL_cluster - Cos_loss + ...)
         computed on the CURRENT batch's cell embeddings, as stage 1 does. The released code's version (lll2) used a
         stale stage-1 tensor (self.h) and was commented out; default False keeps the released behaviour."""
         super(MarsGT, self).__init__()
         self.cosine_loss = cosine_loss
         self.cosine_reduce, self.cosine_self_pairs = cosine_reduce, cosine_self_pairs   # see cluster_cosine()
+        self.cosine_weight = cosine_weight   # weight of the stage-2 cosine term when cosine_loss=True
         self.lr = lr
         self.wd = wd
         self.gnn = gnn
@@ -360,7 +362,7 @@ class MarsGT(nn.Module):
                 loss = loss_net + loss_cluster + loss_kl  # - lll2
                 if self.cosine_loss:   # paper eq. 12 cosine term, on this batch (mirrors stage 1)
                     cos_sum, _ = cluster_cosine(cell_emb, l, self.cosine_reduce, self.cosine_self_pairs)
-                    loss = loss - cos_sum
+                    loss = loss - self.cosine_weight * cos_sum
                     ep['cos_sim'] = ep.get('cos_sim', 0.0) + float(torch.as_tensor(cos_sum).detach())
                 # loss = loss_cluster  + loss_kl - lll + loss_net  #+ loss_S_R#+ loss_net
                 self.gnn_optimizer.zero_grad()

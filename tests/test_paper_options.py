@@ -121,6 +121,27 @@ def test_cosine_options_train():
     assert np.isfinite(per_batch) and -1 <= per_batch <= 1, per_batch
     assert -1 <= nd.history[-1]['cos_sim'] <= 1
 
+
+def test_cosine_weight():
+    """cosine_weight scales the cosine term in both stages; 0 removes it."""
+    torch.set_num_threads(1)
+    D = _data(); R, A, GP, ini, idx, nodes, names = D
+    def run(w, cos_loss=True):
+        torch.manual_seed(0); np.random.seed(0)
+        nd = mm.NodeDimensionReduction(R, A, idx, ini, wd=0.1, epochs=1, cosine_weight=w, **KW)
+        gnn, _, _, _, h = nd.train_model(n_batch=len(idx))
+        m = mm.MarsGT(gnn=gnn, h=h, labsm=0.1, n_hid=32, n_batch=len(idx), device=DEV, lr=5e-4, wd=0.1,
+                      cosine_loss=cos_loss, cosine_weight=w)
+        g = m.train_model(indices=idx, RNA_matrix=R, ATAC_matrix=A, Gene_Peak=GP, ini_p1=ini)
+        return nd.history[-1], m.history[-1], [p.detach().clone() for p in g.parameters()]
+    for w in (0.0, 0.5, 2.0):
+        h1, h2, _ = run(w)
+        assert np.isclose(h1['loss'], h1['loss_cluster'] - w * h1['cos_sim'], atol=1e-5), (w, h1)
+        assert np.isclose(h2['loss'], h2['loss_net'] + h2['loss_cluster'] + h2['loss_kl'] - w * h2['cos_sim'], atol=1e-5), (w, h2)
+    # weight 0 in stage 2 trains like cosine_loss=False (stage 1 also at weight 0 in both runs)
+    _, _, w0 = run(0.0, cos_loss=True); _, _, off = run(0.0, cos_loss=False)
+    assert all(torch.allclose(a, b, atol=1e-6) for a, b in zip(w0, off))
+
 if __name__ == '__main__':
     for name, fn in list(globals().items()):
         if name.startswith('test_'):
